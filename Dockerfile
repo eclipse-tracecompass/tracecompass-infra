@@ -5,7 +5,7 @@
 # are made available under the terms of the Eclipse Public License 2.0
 # which accompanies this distribution, and is available at
 # https://www.eclipse.org/legal/epl-2.0/
-# 
+#
 # SPDX-License-Identifier: EPL-2.0
 ###############################################################################
 
@@ -33,7 +33,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       zip \
       ##Xvnc
       libgtk-3-0 \
-	  libgtk2.0-0 \
+      libgtk2.0-0 \
       locales \
       #libgtk-3-0=3.22.30-1ubuntu1 \
       #tigervnc-standalone-server \
@@ -52,8 +52,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       fonts-dejavu \
       fonts-dejavu-core \
       fonts-dejavu-extra \
+      python-all-dev python-pip python-setuptools \
+      python3-all-dev python3-pip python3-setuptools \
     && rm -rf /var/lib/apt/lists/* \
-    && locale-gen en_US.UTF-8
+    && locale-gen en_US.UTF-8 \
+    && pip install --upgrade pip \
+    && pip3 install --upgrade pip
 # Need locale to be UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
