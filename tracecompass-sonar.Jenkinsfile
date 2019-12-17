@@ -40,15 +40,6 @@ pipeline {
                     sh 'mvn clean install -B -Pctf-grammar -Pbuild-rcp -Dmaven.test.error.ignore=true -Dmaven.test.failure.ignore=true -Dmaven.repo.local=/home/jenkins/.m2/repository --settings /home/jenkins/.m2/settings.xml ${MAVEN_ARGS}'
                 }
             }
-            post {
-                always {
-                    container('tracecompass') {
-                        sh 'echo $ARCHIVE_ARTIFACTS'
-                        junit '*/*/target/surefire-reports/*.xml'
-                        archiveArtifacts artifacts: '$ARCHIVE_ARTIFACTS', excludes: '**/org.eclipse.tracecompass.common.core.log', allowEmptyArchive: true
-                    }
-                }
-            }
         }
         stage('Sonar') {
             steps {
@@ -63,7 +54,7 @@ pipeline {
     post {
         failure {
             container('tracecompass') {
-                emailext subject: 'Build $BUILD_STATUS: $PROJECT_NAME #$BUILD_NUMBER!', 
+                emailext subject: 'Build $BUILD_STATUS: $PROJECT_NAME #$BUILD_NUMBER!',
                 body: '''$CHANGES \n
 ------------------------------------------
 Check console output at $BUILD_URL to view the results.''',
