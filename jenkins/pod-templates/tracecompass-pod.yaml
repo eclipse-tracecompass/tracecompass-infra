@@ -10,11 +10,11 @@ spec:
     args: ["-c", "/home/tracecompass/.vnc/xstartup.sh && cat"]
     resources:
       requests:
-        memory: "6Gi"
-        cpu: "2000m"
+        memory: "2.6Gi"
+        cpu: "1"
       limits:
-        memory: "6Gi"
-        cpu: "2000m"
+        memory: "2.6Gi"
+        cpu: "1"
     volumeMounts:
     - name: settings-xml
       mountPath: /home/jenkins/.m2/settings.xml
