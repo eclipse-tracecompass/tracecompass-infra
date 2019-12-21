@@ -11,7 +11,7 @@
 pipeline {
     agent {
         kubernetes {
-            label 'tracecompass-build'
+            label 'tracecompass-sonar-build'
             yamlFile 'jenkins/pod-templates/tracecompass-sonar-pod.yaml'
             defaultContainer 'tracecompass'
         }
