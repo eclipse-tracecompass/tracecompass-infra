@@ -36,6 +36,7 @@ pipeline {
         SERVER_RCP_PATH="trace-server/org.eclipse.tracecompass.incubator.trace.server.product/target/products/"
         SERVER_RCP_SITE_PATH="trace-server/org.eclipse.tracecompass.incubator.trace.server.product/target/repository/"
         SERVER_RCP_PATTERN="trace-compass-server*"
+        JAVADOC_PATH="target/site/apidocs"
     }
     stages {
         stage('Checkout') {
@@ -50,6 +51,7 @@ pipeline {
                     sh 'cp ${MAVEN_WORKSPACE_SCRIPTS}/deploy-rcp.sh ${WORKSPACE_SCRIPTS}'
                     sh 'cp ${MAVEN_WORKSPACE_SCRIPTS}/deploy-update-site.sh ${WORKSPACE_SCRIPTS}'
                     sh 'cp ${MAVEN_WORKSPACE_SCRIPTS}/deploy-doc.sh ${WORKSPACE_SCRIPTS}'
+                    sh 'cp ${MAVEN_WORKSPACE_SCRIPTS}/deploy-javadoc.sh ${WORKSPACE_SCRIPTS}'
                 }
             }
         }
@@ -66,7 +68,8 @@ pipeline {
         stage('Build') {
             steps {
                 container('tracecompass') {
-                    sh 'mvn clean install -B -Pdeploy-doc -DdocDestination=${WORKSPACE}/doc/.temp -Pbuild-rcp -Dmaven.repo.local=/home/jenkins/.m2/repository --settings /home/jenkins/.m2/settings.xml ${MAVEN_ARGS}'
+                    sh 'curl https://ci.eclipse.org/ease/job/ease.build.module.doclet/lastSuccessfulBuild/artifact/developers/org.eclipse.ease.helpgenerator/target/ease.module.doclet.jar --output ease.module.doclet.jar'
+                    sh 'mvn clean install -B -Pdeploy-doc -Pmodule-docs -DdocDestination=${WORKSPACE}/doc/.temp -Pbuild-rcp -Dmaven.repo.local=/home/jenkins/.m2/repository --settings /home/jenkins/.m2/settings.xml ${MAVEN_ARGS}'
                 }
             }
             post {
@@ -123,6 +126,28 @@ pipeline {
                 container('jnlp') {
                     sshagent (['projects-storage.eclipse.org-bot-ssh']) {
                        sh '${WORKSPACE_SCRIPTS}/deploy-doc.sh'
+                    }
+                }
+            }
+        }
+        stage('Javadoc') {
+            when {
+                expression { return params.JAVADOC }
+            }
+            steps {
+                container('tracecompass') {
+                    sh 'mvn clean javadoc:aggregate -Pbuild-api-docs -Dmaven.repo.local=/home/jenkins/.m2/repository --settings /home/jenkins/.m2/settings.xml ${MAVEN_ARGS}'
+                }
+            }
+        }
+        stage('Deploy Javadoc') {
+            when {
+                expression { return params.JAVADOC }
+            }
+            steps {
+                container('jnlp') {
+                    sshagent (['projects-storage.eclipse.org-bot-ssh']) {
+                       sh '${WORKSPACE_SCRIPTS}/deploy-javadoc.sh ${JAVADOC_PATH}'
                     }
                 }
             }
