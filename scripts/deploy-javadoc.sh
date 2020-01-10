@@ -29,6 +29,6 @@ else
 fi
 
 $ECHO ${SSH} "mkdir -p ${JAVADOC_DESTINATION} && \
-              rm -f ${JAVADOC_DESTINATION}/${JAVADOC_REPO}"
+              rm -rf ${JAVADOC_DESTINATION}/${JAVADOC_REPO}"
 
 $ECHO $SCP -rv ${javadocPath} "${SSHUSER}:${JAVADOC_DESTINATION}"
