@@ -10,4 +10,4 @@ docker build --no-cache --build-arg version=16.04 --build-arg strip=true  -t ecl
 # How to push the docker image to dockerHub under the eclipse organisation
 ```bash
 docker push eclipse/tracecompass-build-env:16.04
-```bash
+```
