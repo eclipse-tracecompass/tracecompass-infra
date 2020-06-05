@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Pod
 spec:
   containers:
-  - name: tracecompass
+  - name: tracecompass-test
     image: eclipse/tracecompass-build-env:18.04
     imagePullPolicy: Always
     tty: true
