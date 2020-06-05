@@ -3,7 +3,7 @@ kind: Pod
 spec:
   containers:
   - name: tracecompass
-    image: eclipse/tracecompass-build-env:16.04
+    image: eclipse/tracecompass-build-env:18.04
     imagePullPolicy: Always
     tty: true
     command: [ "/bin/sh" ]
