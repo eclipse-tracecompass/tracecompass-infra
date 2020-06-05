@@ -11,7 +11,7 @@
 pipeline {
     agent {
         kubernetes {
-            label 'tracecompass-build'
+            label 'tracecompass-test-build'
             yamlFile 'jenkins/pod-templates/tracecompass-test-pod.yaml'
             defaultContainer 'tracecompass-test'
         }
@@ -37,7 +37,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                container('tracecompass') {
+                container('tracecompass-test') {
                     sh 'mkdir -p ${MAVEN_WORKSPACE_SCRIPTS}'
                     sh 'cp scripts/deploy-rcp.sh ${MAVEN_WORKSPACE_SCRIPTS}'
                     sh 'cp scripts/deploy-update-site.sh ${MAVEN_WORKSPACE_SCRIPTS}'
@@ -55,14 +55,14 @@ pipeline {
                 expression { return params.LEGACY }
             }
             steps {
-                container('tracecompass') {
+                container('tracecompass-test') {
                     sh 'cp -f ${WORKSPACE}/rcp/org.eclipse.tracecompass.rcp.product/legacy/tracing.product ${WORKSPACE}/rcp/org.eclipse.tracecompass.rcp.product/'
                 }
             }
         }
         stage('Build') {
             steps {
-                container('tracecompass') {
+                container('tracecompass-test') {
                     sh 'mkdir -p ${WORKSPACE}/doc/.temp'
                     sh 'mkdir -p ${WORKSPACE}/doc/.temp/org.eclipse.tracecompass.doc.dev'
                     sh 'mkdir -p ${WORKSPACE}/doc/.temp/org.eclipse.tracecompass.doc.user'
@@ -74,7 +74,7 @@ pipeline {
             }
             post {
                 always {
-                    container('tracecompass') {
+                    container('tracecompass-test') {
                         sh 'echo $ARCHIVE_ARTIFACTS'
                         junit '*/*/target/surefire-reports/*.xml'
                         archiveArtifacts artifacts: '$ARCHIVE_ARTIFACTS', excludes: '**/org.eclipse.tracecompass.common.core.log', allowEmptyArchive: true
