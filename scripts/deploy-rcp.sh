@@ -25,6 +25,7 @@ rcpDestination=$2
 rcpSitePath=$3
 rcpSiteDestination=$4
 rcpPattern=$5
+rcpSymlink=$6
 
 SSHUSER="genie.tracecompass@projects-storage.eclipse.org"
 SSH="ssh ${SSHUSER}"
@@ -43,3 +44,13 @@ $ECHO ${SSH} "mkdir -p ${rcpDestination} && \
               rm -rf  ${rcpSiteDestination}/*"
 $ECHO $SCP ${rcpPath}/${rcpPattern} "${SSHUSER}:${rcpDestination}"
 $ECHO $SCP -r ${rcpSitePath}/* "${SSHUSER}:${rcpSiteDestination}"
+
+if [ "$rcpSymlink" == "true" ]; then
+    endPattern=${#rcpPattern} - 1
+    pattern=${rcpPattern:0:${endPattern}}
+    rcpLinuxPath=$(basename -- $(ls ${rcpPath}/${pattern}*linux.gtk*))
+    rcpMacosPath=$(basename -- $(ls ${rcpPath}/${pattern}*macosx.cocoa*))
+    rcpWindowsPath=$(basename -- $(ls ${rcpPath}/${pattern}*win32.win32*))
+    $ECHO ${SSH} "ln -s ${rcpDestination}/${rcpLinuxPath} ${rcpDestination}/${pattern}-latest-linux.gtk.x_86_64.tar.gz && \
+                  ln -s ${rcpDestination}/${rcpMacosPath} ${rcpDestination}/${pattern}-latest-macosx.cocoa.x_86_64.tar.gz && \
+                  ln -s ${rcpDestination}/${rcpWindowsPath} ${rcpDestination}/${pattern}-latest-win32.win32.x_86_64.tar.gz"
