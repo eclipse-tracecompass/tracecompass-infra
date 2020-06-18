@@ -16,7 +16,7 @@ set -x # echo all commands used for debugging purposes
 
 repo="tracecompass"
 if [ "$#" -lt 6 ]; then
-	echo "Missing arguments: deploy-rcp.sh rcpPath rcpDestination rcpSitePath rcpSiteDestination rcpPattern addSymlink"
+	echo "Missing arguments: deploy-rcp.sh rcpPath rcpDestination rcpSitePath rcpSiteDestination rcpPattern copyLatest"
 	exit
 fi
 
@@ -25,7 +25,7 @@ rcpDestination=$2
 rcpSitePath=$3
 rcpSiteDestination=$4
 rcpPattern=$5
-rcpSymlink=$6
+copyLatest=$6
 
 SSHUSER="genie.tracecompass@projects-storage.eclipse.org"
 SSH="ssh ${SSHUSER}"
@@ -45,13 +45,13 @@ $ECHO ${SSH} "mkdir -p ${rcpDestination} && \
 $ECHO $SCP ${rcpPath}/${rcpPattern} "${SSHUSER}:${rcpDestination}"
 $ECHO $SCP -r ${rcpSitePath}/* "${SSHUSER}:${rcpSiteDestination}"
 
-if [ "$rcpSymlink" == "true" ]; then
+if [ "$copyLatest" == "true" ]; then
     endPattern=$((${#rcpPattern} - 1))
     pattern=${rcpPattern:0:${endPattern}}
     rcpLinuxPath=$(basename -- $(ls ${rcpPath}/${pattern}*linux.gtk*))
     rcpMacosPath=$(basename -- $(ls ${rcpPath}/${pattern}*macosx.cocoa*))
     rcpWindowsPath=$(basename -- $(ls ${rcpPath}/${pattern}*win32.win32*))
-    $ECHO ${SSH} "ln -s ${rcpDestination}/${rcpLinuxPath} ${rcpDestination}/${pattern}-latest-linux.gtk.x_86_64.tar.gz && \
-                  ln -s ${rcpDestination}/${rcpMacosPath} ${rcpDestination}/${pattern}-latest-macosx.cocoa.x_86_64.tar.gz && \
-                  ln -s ${rcpDestination}/${rcpWindowsPath} ${rcpDestination}/${pattern}-latest-win32.win32.x_86_64.tar.gz"
+    $ECHO ${SSH} "cp ${rcpDestination}/${rcpLinuxPath} ${rcpDestination}/${pattern}-latest-linux.gtk.x86_64.tar.gz && \
+                  cp ${rcpDestination}/${rcpMacosPath} ${rcpDestination}/${pattern}-latest-macosx.cocoa.x86_64.tar.gz && \
+                  cp ${rcpDestination}/${rcpWindowsPath} ${rcpDestination}/${pattern}-latest-win32.win32.x86_64.tar.gz"
 fi
