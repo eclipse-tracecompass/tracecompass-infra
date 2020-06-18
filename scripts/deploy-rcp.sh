@@ -16,7 +16,7 @@ set -x # echo all commands used for debugging purposes
 
 repo="tracecompass"
 if [ "$#" -lt 5 ]; then
-	echo "Missing arguments: deploy-rcp.sh rcpPath rcpDestination rcpSitePath rcpSiteDestination rcpPattern"
+	echo "Missing arguments: deploy-rcp.sh rcpPath rcpDestination rcpSitePath rcpSiteDestination rcpPattern addSymlink"
 	exit
 fi
 
@@ -54,3 +54,4 @@ if [ "$rcpSymlink" == "true" ]; then
     $ECHO ${SSH} "ln -s ${rcpDestination}/${rcpLinuxPath} ${rcpDestination}/${pattern}-latest-linux.gtk.x_86_64.tar.gz && \
                   ln -s ${rcpDestination}/${rcpMacosPath} ${rcpDestination}/${pattern}-latest-macosx.cocoa.x_86_64.tar.gz && \
                   ln -s ${rcpDestination}/${rcpWindowsPath} ${rcpDestination}/${pattern}-latest-win32.win32.x_86_64.tar.gz"
+fi
