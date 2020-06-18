@@ -15,7 +15,7 @@ set -e # error out on any failed commands
 set -x # echo all commands used for debugging purposes
 
 repo="tracecompass"
-if [ "$#" -lt 5 ]; then
+if [ "$#" -lt 6 ]; then
 	echo "Missing arguments: deploy-rcp.sh rcpPath rcpDestination rcpSitePath rcpSiteDestination rcpPattern addSymlink"
 	exit
 fi
@@ -46,7 +46,7 @@ $ECHO $SCP ${rcpPath}/${rcpPattern} "${SSHUSER}:${rcpDestination}"
 $ECHO $SCP -r ${rcpSitePath}/* "${SSHUSER}:${rcpSiteDestination}"
 
 if [ "$rcpSymlink" == "true" ]; then
-    endPattern=${#rcpPattern} - 1
+    endPattern=$((${#rcpPattern} - 1))
     pattern=${rcpPattern:0:${endPattern}}
     rcpLinuxPath=$(basename -- $(ls ${rcpPath}/${pattern}*linux.gtk*))
     rcpMacosPath=$(basename -- $(ls ${rcpPath}/${pattern}*macosx.cocoa*))
