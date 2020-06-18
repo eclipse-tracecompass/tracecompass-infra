@@ -101,7 +101,7 @@ pipeline {
             steps {
                 container('jnlp') {
                     sshagent (['projects-storage.eclipse.org-bot-ssh']) {
-                        sh '${WORKSPACE_SCRIPTS}/deploy-rcp.sh ${RCP_PATH} ${RCP_DESTINATION} ${RCP_SITE_PATH} ${RCP_SITE_DESTINATION} ${RCP_PATTERN}'
+                        sh '${WORKSPACE_SCRIPTS}/deploy-rcp.sh ${RCP_PATH} ${RCP_DESTINATION} ${RCP_SITE_PATH} ${RCP_SITE_DESTINATION} ${RCP_PATTERN} false'
                     }
                 }
             }
