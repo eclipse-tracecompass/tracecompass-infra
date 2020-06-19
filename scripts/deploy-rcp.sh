@@ -40,7 +40,7 @@ fi
 
 $ECHO ${SSH} "mkdir -p ${rcpDestination} && \
               mkdir -p ${rcpSiteDestination} && \
-              rm -rf  ${rcpDestination}/* && \
+              rm -rf  ${rcpDestination}/trace-compass* && \
               rm -rf  ${rcpSiteDestination}/*"
 $ECHO $SCP ${rcpPath}/${rcpPattern} "${SSHUSER}:${rcpDestination}"
 $ECHO $SCP -r ${rcpSitePath}/* "${SSHUSER}:${rcpSiteDestination}"
