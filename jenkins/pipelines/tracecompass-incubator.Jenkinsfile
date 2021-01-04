@@ -66,6 +66,16 @@ pipeline {
                 }
             }
         }
+        stage('Legacy-server') {
+            when {
+                expression { return params.LEGACY_SERVER }
+            }
+            steps {
+                container('tracecompass') {
+                    sh 'git am patches/0001-releng-Fix-build-with-tracecompass-incubator-2019-06.patch'
+                }
+            }
+        }
         stage('Build') {
             steps {
                 container('tracecompass') {
