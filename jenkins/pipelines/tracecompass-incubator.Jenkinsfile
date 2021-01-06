@@ -72,7 +72,7 @@ pipeline {
             }
             steps {
                 container('tracecompass') {
-                    sh 'git am patches/0001-releng-Fix-build-with-tracecompass-incubator-2019-06.patch'
+                    sh 'git apply patches/0001-releng-Fix-build-with-tracecompass-incubator-2019-06.patch'
                 }
             }
         }
