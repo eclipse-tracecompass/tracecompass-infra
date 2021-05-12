@@ -66,13 +66,23 @@ pipeline {
                 }
             }
         }
-        stage('Legacy-server') {
+        stage('Legacy-server-2019-06') {
             when {
-                expression { return params.LEGACY_SERVER }
+                expression { return params.SERVER_2019_06 }
             }
             steps {
                 container('tracecompass') {
                     sh 'git apply patches/0001-releng-Fix-build-with-tracecompass-incubator-2019-06.patch'
+                }
+            }
+        }
+        stage('Legacy-server-2020-06') {
+            when {
+                expression { return params.SERVER_2020_06 }
+            }
+            steps {
+                container('tracecompass') {
+                    sh 'git apply patches/0001-releng-Fix-build-with-tracecompass-incubator-2020-06.patch'
                 }
             }
         }
