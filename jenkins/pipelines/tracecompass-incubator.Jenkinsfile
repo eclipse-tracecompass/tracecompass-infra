@@ -68,7 +68,7 @@ pipeline {
         }
         stage('Legacy-server-2019-06') {
             when {
-                expression { return params.LEGACY_2019-06 }
+                expression { return params.SERVER_2019_06 }
             }
             steps {
                 container('tracecompass') {
@@ -78,7 +78,7 @@ pipeline {
         }
         stage('Legacy-server-2020-06') {
             when {
-                expression { return params.LEGACY_2020-06 }
+                expression { return params.SERVER_2020_06 }
             }
             steps {
                 container('tracecompass') {
