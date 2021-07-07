@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Ericsson.
+ * Copyright (c) 2019, 2021 Ericsson.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -23,7 +23,7 @@ pipeline {
     }
     tools {
         maven 'apache-maven-latest'
-        jdk 'oracle-jdk8-latest'
+        jdk 'openjdk-jdk11-latest'
     }
     environment {
         MAVEN_OPTS="-Xms768m -Xmx4096m -XX:+UseSerialGC"
@@ -44,8 +44,10 @@ pipeline {
         stage('Sonar') {
             steps {
                 container('tracecompass') {
-                    withSonarQubeEnv('Eclipse Sonar') {
-                        sh 'mvn -B -Djacoco.dataFile=../../target/jacoco.exec jacoco:report sonar:sonar -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.jdbc.url=$SONAR_JDBC_URL -Dsonar.jdbc.username=$SONAR_JDBC_USERNAME -Dsonar.jdbc.password=$SONAR_JDBC_PASSWORD'
+                    withCredentials([string(credentialsId: 'sonarcloud-token', variable: 'SONARCLOUD_TOKEN')]) {
+                        withSonarQubeEnv('SonarCloud.io') {
+                            sh 'mvn jacoco:report clean verify sonar:sonar -Djacoco.dataFile=../../target/jacoco.exec -Dsonar.projectKey=org.eclipse.tracecompass -Dsonar.organization=eclipse -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.login=${SONARCLOUD_TOKEN}'
+                        }
                     }
                 }
             }
