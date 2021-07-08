@@ -46,7 +46,7 @@ pipeline {
                 container('tracecompass') {
                     withCredentials([string(credentialsId: 'sonarcloud-token', variable: 'SONARCLOUD_TOKEN')]) {
                         withSonarQubeEnv('SonarCloud.io') {
-                            sh 'mvn jacoco:report sonar:sonar -Djacoco.dataFile=../../target/jacoco.exec -Dsonar.projectKey=org.eclipse.tracecompass -Dsonar.organization=eclipse -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.login=${SONARCLOUD_TOKEN}'
+                            sh 'mvn jacoco:report sonar:sonar -Djacoco.dataFile=../../target/jacoco.exec -Dsonar.projectKey=${SONAR_PROJECT_KEY} -Dsonar.organization=eclipse -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.login=${SONARCLOUD_TOKEN}'
                         }
                     }
                 }
@@ -58,7 +58,7 @@ pipeline {
             container('tracecompass') {
                 emailext subject: 'Build $BUILD_STATUS: $PROJECT_NAME #$BUILD_NUMBER!',
                 body: '''$CHANGES \n
-------------------------------------------
+------------------------------------------\n
 Check console output at $BUILD_URL to view the results.''',
                 recipientProviders: [culprits(), requestor()],
                 to: '${EMAIL_RECIPIENT}'
