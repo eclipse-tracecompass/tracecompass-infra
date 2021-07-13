@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Ericsson.
+ * Copyright (c) 2019, 2021 Ericsson.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13,7 +13,6 @@ pipeline {
         kubernetes {
             label 'tracecompass-build'
             yamlFile 'jenkins/pod-templates/tracecompass-pod.yaml'
-            defaultContainer 'tracecompass'
         }
     }
     options {
@@ -87,10 +86,8 @@ pipeline {
                 expression { return params.DEPLOY_SITE }
             }
             steps {
-                container('jnlp') {
-                    sshagent (['projects-storage.eclipse.org-bot-ssh']) {
-                        sh '${WORKSPACE_SCRIPTS}/deploy-update-site.sh ${SITE_PATH} ${SITE_DESTINATION}'
-                    }
+                sshagent (['projects-storage.eclipse.org-bot-ssh']) {
+                    sh '${WORKSPACE_SCRIPTS}/deploy-update-site.sh ${SITE_PATH} ${SITE_DESTINATION}'
                 }
             }
         }
@@ -99,10 +96,8 @@ pipeline {
                 expression { return params.DEPLOY_RCP }
             }
             steps {
-                container('jnlp') {
-                    sshagent (['projects-storage.eclipse.org-bot-ssh']) {
-                        sh '${WORKSPACE_SCRIPTS}/deploy-rcp.sh ${RCP_PATH} ${RCP_DESTINATION} ${RCP_SITE_PATH} ${RCP_SITE_DESTINATION} ${RCP_PATTERN} false'
-                    }
+                sshagent (['projects-storage.eclipse.org-bot-ssh']) {
+                    sh '${WORKSPACE_SCRIPTS}/deploy-rcp.sh ${RCP_PATH} ${RCP_DESTINATION} ${RCP_SITE_PATH} ${RCP_SITE_DESTINATION} ${RCP_PATTERN} false'
                 }
             }
         }
@@ -111,10 +106,8 @@ pipeline {
                 expression { return params.DEPLOY_DOC }
             }
             steps {
-                container('jnlp') {
-                    sshagent (['projects-storage.eclipse.org-bot-ssh']) {
-                       sh '${WORKSPACE_SCRIPTS}/deploy-doc.sh'
-                    }
+                sshagent (['projects-storage.eclipse.org-bot-ssh']) {
+                   sh '${WORKSPACE_SCRIPTS}/deploy-doc.sh'
                 }
             }
         }
