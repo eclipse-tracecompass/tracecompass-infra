@@ -55,36 +55,6 @@ pipeline {
                 }
             }
         }
-        stage('Legacy') {
-            when {
-                expression { return params.LEGACY }
-            }
-            steps {
-                container('tracecompass') {
-                    sh 'cp -f ${WORKSPACE}/rcp/org.eclipse.tracecompass.incubator.rcp.product/legacy/tracing.incubator.product ${WORKSPACE}/rcp/org.eclipse.tracecompass.incubator.rcp.product/'
-                }
-            }
-        }
-        stage('Legacy-server-2019-06') {
-            when {
-                expression { return params.SERVER_2019_06 }
-            }
-            steps {
-                container('tracecompass') {
-                    sh 'git apply patches/0001-releng-Fix-build-with-tracecompass-incubator-2019-06.patch'
-                }
-            }
-        }
-        stage('Legacy-server-2020-06') {
-            when {
-                expression { return params.SERVER_2020_06 }
-            }
-            steps {
-                container('tracecompass') {
-                    sh 'git apply patches/0001-releng-Fix-build-with-tracecompass-incubator-2020-06.patch'
-                }
-            }
-        }
         stage('Build') {
             steps {
                 container('tracecompass') {
