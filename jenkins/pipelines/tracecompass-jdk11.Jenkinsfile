@@ -49,16 +49,6 @@ pipeline {
                 }
             }
         }
-        stage('Legacy') {
-            when {
-                expression { return params.LEGACY }
-            }
-            steps {
-                container('tracecompass') {
-                    sh 'cp -f ${WORKSPACE}/rcp/org.eclipse.tracecompass.rcp.product/legacy/tracing.product ${WORKSPACE}/rcp/org.eclipse.tracecompass.rcp.product/'
-                }
-            }
-        }
         stage('Build') {
             steps {
                 container('tracecompass') {
