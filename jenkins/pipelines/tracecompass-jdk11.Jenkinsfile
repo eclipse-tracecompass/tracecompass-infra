@@ -49,6 +49,16 @@ pipeline {
                 }
             }
         }
+        stage('Product File') {
+            when {
+                expression { return params.PRODUCT_FILE }
+            }
+            steps {
+                container('tracecompass') {
+                    sh 'cp -f ${WORKSPACE}/rcp/org.eclipse.tracecompass.rcp.product/${params.PRODUCT_FILE} ${WORKSPACE}/rcp/org.eclipse.tracecompass.rcp.product/tracing.product'
+                }
+            }
+        }
         stage('Build') {
             steps {
                 container('tracecompass') {
