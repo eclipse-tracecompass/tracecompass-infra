@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019, 2021 Ericsson.
+ * Copyright (c) 2019, 2022 Ericsson.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -32,6 +32,7 @@ pipeline {
         RCP_PATH="rcp/org.eclipse.tracecompass.rcp.product/target/products/"
         RCP_SITE_PATH="rcp/org.eclipse.tracecompass.rcp.product/target/repository/"
         RCP_PATTERN="trace-compass-*"
+        JAVADOC_PATH="target/site/apidocs"
     }
     stages {
         stage('Checkout') {
@@ -41,11 +42,13 @@ pipeline {
                     sh 'cp scripts/deploy-rcp.sh ${MAVEN_WORKSPACE_SCRIPTS}'
                     sh 'cp scripts/deploy-update-site.sh ${MAVEN_WORKSPACE_SCRIPTS}'
                     sh 'cp scripts/deploy-doc.sh ${MAVEN_WORKSPACE_SCRIPTS}'
+                    sh 'cp scripts/deploy-javadoc.sh ${MAVEN_WORKSPACE_SCRIPTS}'
                     checkout([$class: 'GitSCM', branches: [[name: '$GERRIT_BRANCH_NAME']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'BuildChooserSetting', buildChooser: [$class: 'GerritTriggerBuildChooser']]], submoduleCfg: [], userRemoteConfigs: [[refspec: '$GERRIT_REFSPEC', url: '$GERRIT_REPOSITORY_URL']]])
                     sh 'mkdir -p ${WORKSPACE_SCRIPTS}'
                     sh 'cp ${MAVEN_WORKSPACE_SCRIPTS}/deploy-rcp.sh ${WORKSPACE_SCRIPTS}'
                     sh 'cp ${MAVEN_WORKSPACE_SCRIPTS}/deploy-update-site.sh ${WORKSPACE_SCRIPTS}'
                     sh 'cp ${MAVEN_WORKSPACE_SCRIPTS}/deploy-doc.sh ${WORKSPACE_SCRIPTS}'
+                    sh 'cp ${MAVEN_WORKSPACE_SCRIPTS}/deploy-javadoc.sh ${WORKSPACE_SCRIPTS}'
                 }
             }
         }
@@ -107,7 +110,27 @@ pipeline {
             }
             steps {
                 sshagent (['projects-storage.eclipse.org-bot-ssh']) {
-                    sh '${WORKSPACE_SCRIPTS}/deploy-doc.sh'
+                       sh '${WORKSPACE_SCRIPTS}/deploy-doc.sh'
+                }
+            }
+        }
+        stage('Javadoc') {
+            when {
+                expression { return params.JAVADOC }
+            }
+            steps {
+                container('tracecompass') {
+                    sh 'mvn clean javadoc:aggregate -Pbuild-api-docs -Dmaven.repo.local=/home/jenkins/.m2/repository --settings /home/jenkins/.m2/settings.xml ${MAVEN_ARGS}'
+                }
+            }
+        }
+        stage('Deploy Javadoc') {
+            when {
+                expression { return params.JAVADOC }
+            }
+            steps {
+                sshagent (['projects-storage.eclipse.org-bot-ssh']) {
+                   sh '${WORKSPACE_SCRIPTS}/deploy-javadoc.sh ${JAVADOC_PATH}'
                 }
             }
         }
