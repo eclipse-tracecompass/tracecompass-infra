@@ -46,7 +46,7 @@ pipeline {
                 container('tracecompass') {
                     withCredentials([string(credentialsId: 'sonarcloud-token', variable: 'SONARCLOUD_TOKEN')]) {
                         withSonarQubeEnv('SonarCloud.io') {
-                            sh 'mvn jacoco:report sonar:sonar -Djacoco.dataFile=../../target/jacoco.exec -Dsonar.projectKey=${SONAR_PROJECT_KEY} -Dsonar.organization=eclipse -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.login=${SONARCLOUD_TOKEN}'
+                            sh 'mvn install -B jacoco:report sonar:sonar -Djacoco.dataFile=../../target/jacoco.exec -Dsonar.projectKey=${SONAR_PROJECT_KEY} -Dsonar.organization=eclipse -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.login=${SONARCLOUD_TOKEN} -Dmaven.test.error.ignore=true -Dmaven.test.failure.ignore=true -Dmaven.repo.local=/home/jenkins/.m2/repository --settings /home/jenkins/.m2/settings.xml'
                         }
                     }
                 }
