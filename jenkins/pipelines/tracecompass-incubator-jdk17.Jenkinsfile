@@ -55,6 +55,26 @@ pipeline {
                 }
             }
         }
+        stage('Product File') {
+            when {
+                not { expression { return params.PRODUCT_FILE == null || params.PRODUCT_FILE.isEmpty() } }
+            }
+            steps {
+                container('tracecompass') {
+                    sh "cp -f ${WORKSPACE}/rcp/org.eclipse.tracecompass.incubator.rcp.product/${params.PRODUCT_FILE} ${WORKSPACE}/rcp/org.eclipse.tracecompass.incubator.rcp.product/tracing-incubator.product"
+                }
+            }
+        }
+        stage('Server Product File') {
+            when {
+                not { expression { return params.SERVER_PRODUCT_FILE == null || params.SERVER_PRODUCT_FILE.isEmpty() } }
+            }
+            steps {
+                container('tracecompass') {
+                    sh "cp -f ${WORKSPACE}/trace-server/org.eclipse.tracecompass.incubator.trace.server.product/${params.SERVER_PRODUCT_FILE} ${WORKSPACE}/trace-server/org.eclipse.tracecompass.incubator.trace.server.product/traceserver.product"
+                }
+            }
+        }
         stage('Build') {
             steps {
                 container('tracecompass') {
