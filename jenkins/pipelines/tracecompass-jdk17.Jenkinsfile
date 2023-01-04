@@ -33,6 +33,7 @@ pipeline {
         RCP_SITE_PATH="rcp/org.eclipse.tracecompass.rcp.product/target/repository/"
         RCP_PATTERN="trace-compass-*"
         JAVADOC_PATH="target/site/apidocs"
+        GIT_SHA_FILE=".tc-git-sha"
     }
     stages {
         stage('Checkout') {
@@ -72,6 +73,10 @@ pipeline {
                     sh 'mkdir -p ${WORKSPACE}/doc/.temp/org.eclipse.tracecompass.rcp.doc.user'
                     sh 'mkdir -p ${WORKSPACE}/doc/.temp/org.eclipse.tracecompass.tmf.pcap.doc.user'
                     sh 'mvn clean install -B -Dskip-jacoco=true -Pdeploy-doc -DdocDestination=${WORKSPACE}/doc/.temp -Pctf-grammar -Pbuild-rcp -Dmaven.repo.local=/home/jenkins/.m2/repository --settings /home/jenkins/.m2/settings.xml ${MAVEN_ARGS}'
+                    sh 'mkdir -p ${SITE_PATH}'
+                    sh 'git rev-parse --short HEAD > ${SITE_PATH}/${GIT_SHA_FILE}'
+                    sh 'mkdir -p ${RCP_SITE_PATH}'
+                    sh 'cp ${SITE_PATH}/${GIT_SHA_FILE} ${RCP_SITE_PATH}/${GIT_SHA_FILE}'
                 }
             }
             post {

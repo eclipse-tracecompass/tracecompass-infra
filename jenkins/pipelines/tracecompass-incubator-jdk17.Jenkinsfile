@@ -36,6 +36,7 @@ pipeline {
         SERVER_RCP_SITE_PATH="trace-server/org.eclipse.tracecompass.incubator.trace.server.product/target/repository/"
         SERVER_RCP_PATTERN="trace-compass-server*"
         JAVADOC_PATH="target/site/apidocs"
+        GIT_SHA_FILE=".tc-git-sha"
     }
     stages {
         stage('Checkout') {
@@ -80,6 +81,12 @@ pipeline {
                 container('tracecompass') {
                     sh 'curl https://ci.eclipse.org/ease/job/ease.build.module.doclet/lastSuccessfulBuild/artifact/developers/org.eclipse.ease.helpgenerator/target/ease.module.doclet.jar --output ease.module.doclet.jar'
                     sh 'mvn clean install -B -Pdeploy-doc -Pmodule-docs -DdocDestination=${WORKSPACE}/doc/.temp -Pbuild-rcp -Dmaven.repo.local=/home/jenkins/.m2/repository --settings /home/jenkins/.m2/settings.xml ${MAVEN_ARGS}'
+                    sh 'mkdir -p ${SITE_PATH}'
+                    sh 'git rev-parse --short HEAD > ${SITE_PATH}/${GIT_SHA_FILE}'
+                    sh 'mkdir -p ${RCP_SITE_PATH}'
+                    sh 'cp ${SITE_PATH}/${GIT_SHA_FILE} ${RCP_SITE_PATH}/${GIT_SHA_FILE}'
+                    sh 'mkdir -p ${SERVER_RCP_SITE_PATH}'
+                    sh 'cp ${SITE_PATH}/${GIT_SHA_FILE} ${SERVER_RCP_SITE_PATH}/${GIT_SHA_FILE}'
                 }
             }
             post {
