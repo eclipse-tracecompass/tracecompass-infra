@@ -62,7 +62,7 @@ pipeline {
             }
             steps {
                 container('tracecompass') {
-                    sh "cp -f ${WORKSPACE}/rcp/org.eclipse.tracecompass.incubator.rcp.product/${params.PRODUCT_FILE} ${WORKSPACE}/rcp/org.eclipse.tracecompass.incubator.rcp.product/tracing-incubator.product"
+                    sh "cp -f ${WORKSPACE}/rcp/org.eclipse.tracecompass.incubator.rcp.product/${params.PRODUCT_FILE} ${WORKSPACE}/rcp/org.eclipse.tracecompass.incubator.rcp.product/tracing.incubator.product"
                 }
             }
         }
