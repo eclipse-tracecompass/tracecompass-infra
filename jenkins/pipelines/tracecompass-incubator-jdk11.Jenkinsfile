@@ -36,7 +36,7 @@ pipeline {
         SERVER_RCP_SITE_PATH="trace-server/org.eclipse.tracecompass.incubator.trace.server.product/target/repository/"
         SERVER_RCP_PATTERN="trace-compass-server*"
         JAVADOC_PATH="target/site/apidocs"
-        GIT_SHA_FILE=".tc-git-sha"
+        GIT_SHA_FILE="tc-git-sha"
     }
     stages {
         stage('Checkout') {

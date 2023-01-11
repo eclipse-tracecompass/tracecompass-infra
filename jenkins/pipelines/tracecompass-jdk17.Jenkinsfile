@@ -33,7 +33,7 @@ pipeline {
         RCP_SITE_PATH="rcp/org.eclipse.tracecompass.rcp.product/target/repository/"
         RCP_PATTERN="trace-compass-*"
         JAVADOC_PATH="target/site/apidocs"
-        GIT_SHA_FILE=".tc-git-sha"
+        GIT_SHA_FILE="tc-git-sha"
     }
     stages {
         stage('Checkout') {
