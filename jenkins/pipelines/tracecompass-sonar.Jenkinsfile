@@ -23,7 +23,7 @@ pipeline {
     }
     tools {
         maven 'apache-maven-latest'
-        jdk 'openjdk-jdk11-latest'
+        jdk 'openjdk-jdk17-latest'
     }
     environment {
         MAVEN_OPTS="-Xms768m -Xmx4096m -XX:+UseSerialGC"
