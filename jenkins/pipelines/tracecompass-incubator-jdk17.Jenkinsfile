@@ -79,7 +79,7 @@ pipeline {
         stage('Build') {
             steps {
                 container('tracecompass') {
-                    sh 'curl https://ci.eclipse.org/ease/job/ease.build.module.doclet/lastSuccessfulBuild/artifact/developers/org.eclipse.ease.helpgenerator/target/ease.module.doclet.jar --output ease.module.doclet.jar'
+                    sh 'curl https://ci.eclipse.org/ease/job/ease.build.nightly/lastSuccessfulBuild/artifact/ease.module.doclet.jar --output ease.module.doclet.jar'
                     sh 'mvn clean install -B -Pdeploy-doc -Pmodule-docs -DdocDestination=${WORKSPACE}/doc/.temp -Pbuild-rcp -Dmaven.repo.local=/home/jenkins/.m2/repository --settings /home/jenkins/.m2/settings.xml ${MAVEN_ARGS}'
                     sh 'mkdir -p ${SITE_PATH}'
                     sh 'git rev-parse --short HEAD > ${SITE_PATH}/${GIT_SHA_FILE}'
