@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Ericsson.
+ * Copyright (c) 2019, 2023 Ericsson.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -22,7 +22,7 @@ pipeline {
         disableConcurrentBuilds()
     }
     tools {
-        maven 'apache-maven-latest'
+        maven 'apache-maven-3.8.6'
         jdk 'oracle-jdk8-latest'
     }
     environment {
