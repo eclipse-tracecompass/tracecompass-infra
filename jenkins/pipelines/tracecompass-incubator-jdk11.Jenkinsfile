@@ -92,9 +92,8 @@ pipeline {
             post {
                 always {
                     container('tracecompass') {
-                        sh 'echo $ARCHIVE_ARTIFACTS'
                         junit '*/*/target/surefire-reports/*.xml'
-                        archiveArtifacts artifacts: '$ARCHIVE_ARTIFACTS', excludes: '**/org.eclipse.tracecompass.common.core.log', allowEmptyArchive: true
+                        archiveArtifacts artifacts: '*/*tests/screenshots/*.jpeg,*/*tests/target/work/data/.metadata/.log', excludes: '**/org.eclipse.tracecompass.common.core.log', allowEmptyArchive: true
                     }
                 }
             }
