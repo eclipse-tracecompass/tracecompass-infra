@@ -84,7 +84,7 @@ pipeline {
                 always {
                     container('tracecompass-test') {
                         junit '*/*/target/surefire-reports/*.xml'
-                        archiveArtifacts artifacts: '*/*tests/screenshots/*.jpeg,*/*tests/target/work/data/.metadata/.log', excludes: '**/org.eclipse.tracecompass.common.core.log,rcp/org.eclipse.tracecompass.rcp.product/target/products/*.dmg,rcp/org.eclipse.tracecompass.rcp.product/target/products/*.tar.gz', allowEmptyArchive: true
+                        archiveArtifacts artifacts: '*/*tests/screenshots/*.jpeg,*/*tests/target/work/data/.metadata/.log,rcp/org.eclipse.tracecompass.rcp.product/target/products/*.dmg,rcp/org.eclipse.tracecompass.rcp.product/target/products/*.tar.gz, rcp/org.eclipse.tracecompass.rcp.product/target/products/*.zip', excludes: '**/org.eclipse.tracecompass.common.core.log', allowEmptyArchive: true
                     }
                 }
             }
