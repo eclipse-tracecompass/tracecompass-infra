@@ -38,7 +38,7 @@ pipeline {
         GIT_SHA_FILE="tc-git-sha"
     }
     parameters {
-        booleanParameter(name: 'NOTARIZE_MAC_RCP', defaultValue: false, description: "whether to notarize mac RCP packages")
+        booleanParameter(name: 'NOTARIZE_MAC_RCP', defaultValue: true, description: "whether to notarize mac RCP packages")
     }
     stages {
         stage('Checkout') {
@@ -49,14 +49,14 @@ pipeline {
                     sh 'cp scripts/deploy-update-site.sh ${MAVEN_WORKSPACE_SCRIPTS}'
                     sh 'cp scripts/deploy-doc.sh ${MAVEN_WORKSPACE_SCRIPTS}'
                     sh 'cp scripts/deploy-javadoc.sh ${MAVEN_WORKSPACE_SCRIPTS}'
-                    sh 'cp scripts/macosx-notarize-dmg.sh ${MAVEN_WORKSPACE_SCRIPTS}'
+                    sh 'cp scripts/macosx-notarize.sh ${MAVEN_WORKSPACE_SCRIPTS}'
                     checkout([$class: 'GitSCM', branches: [[name: '$GERRIT_BRANCH_NAME']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'BuildChooserSetting', buildChooser: [$class: 'GerritTriggerBuildChooser']]], submoduleCfg: [], userRemoteConfigs: [[refspec: '$GERRIT_REFSPEC', url: '$GERRIT_REPOSITORY_URL']]])
                     sh 'mkdir -p ${WORKSPACE_SCRIPTS}'
                     sh 'cp ${MAVEN_WORKSPACE_SCRIPTS}/deploy-rcp.sh ${WORKSPACE_SCRIPTS}'
                     sh 'cp ${MAVEN_WORKSPACE_SCRIPTS}/deploy-update-site.sh ${WORKSPACE_SCRIPTS}'
                     sh 'cp ${MAVEN_WORKSPACE_SCRIPTS}/deploy-doc.sh ${WORKSPACE_SCRIPTS}'
                     sh 'cp ${MAVEN_WORKSPACE_SCRIPTS}/deploy-javadoc.sh ${WORKSPACE_SCRIPTS}'
-                    sh 'cp ${MAVEN_WORKSPACE_SCRIPTS}/macosx-notarize-dmg.sh ${WORKSPACE_SCRIPTS}'
+                    sh 'cp ${MAVEN_WORKSPACE_SCRIPTS}/macosx-notarize.sh ${WORKSPACE_SCRIPTS}'
                 }
             }
         }
@@ -145,57 +145,13 @@ pipeline {
                 }
             }
         }
-        stage('Notarize mac RCP') {
+        stage('Notarize macos RCP packages') {
             when {
                 expression { return params.NOTARIZE_MAC_RCP }
             }
             steps {
-                script {
-                    // Copied and adapted from the Eclipse EPP Jenkins job "notarize-downloads"
-                    // https://ci.eclipse.org/packaging/job/notarize-downloads/configure
-                    sh """
-                        #!/bin/bash
-                        set -x
-                        echo ${WORKSPACE}
-
-                        SSHUSER="genie.tracecompass@projects-storage.eclipse.org"
-                        SSH="ssh ${SSHUSER}"
-                        SCP="scp"
-
-                        RCP_DESTINATION="/home/data/httpd/download.eclipse.org/tracecompass/master/rcp/"
-
-                        # download dmg files
-                        mkdir temp
-                        pushd temp
-                        for path in $( ${SSH} find ${RCP_DESTINATION}  -maxdepth 1 -name '*.dmg' )
-                        do
-                            ${SCP} ${SSHUSER}:${path} .
-                        done
-                        popd
-
-                        # notarize dmg files
-                        for i in $(find ${WORKSPACE} -name '*.dmg')
-                        do
-                            LOG=$(basename ${i}).log
-                            echo "Starting ${i}" >> ${LOG}
-                            ${WORKSPACE_SCRIPTS}/macosx-notarize-dmg.sh ${i} |& tee --append ${LOG} &
-                            sleep 18s # start jobs at a small interval from each other
-                        done
-
-                        jobs -p
-                        wait < <(jobs -p)
-
-                        # upload notarized dmg files to their respective folders
-                        pushd temp
-                        for i in $( find * -name '*.dmg' )
-                        do
-                            ${SCP} ${i}* ${SSHUSER}:${RCP_DESTINATION}
-                            # Save the signed, but unnotarized files. See Bug 575677
-                            ${SSH} mv ${RCP_DESTINATION}/${i}-tonotarize ${RCP_DESTINATION}/${i}-signed
-                            ${SSH} rm ${RCP_DESTINATION}/${i}-tonotarize'*'
-                        done
-                        popd
-                    """
+                sshagent (['projects-storage.eclipse.org-bot-ssh']) {
+                    sh '${WORKSPACE_SCRIPTS}/macosx-notarize.sh ${RCP_DESTINATION}'
                 }
             }
             post {
