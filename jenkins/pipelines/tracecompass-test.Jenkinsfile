@@ -38,7 +38,7 @@ pipeline {
         GIT_SHA_FILE="tc-git-sha"
     }
     parameters {
-        booleanParameter(name: 'NOTARIZE_MAC_RCP', defaultValue: true, description: "whether to notarize mac RCP packages")
+        booleanParam(name: 'NOTARIZE_MAC_RCP', defaultValue: true, description: "whether to notarize mac RCP packages")
     }
     stages {
         stage('Checkout') {
