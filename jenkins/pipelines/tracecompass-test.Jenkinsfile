@@ -37,7 +37,7 @@ pipeline {
         GIT_SHA_FILE="tc-git-sha"
     }
     parameters {
-        booleanParam(name: 'NOTARIZE_MAC_RCP', defaultValue: true, description: "whether to notarize mac RCP packages")
+        booleanParam(name: 'NOTARIZE_MAC_RCP', defaultValue: false, description: "whether to notarize mac RCP packages")
     }
     stages {
         stage('Checkout') {
@@ -89,7 +89,7 @@ pipeline {
                 always {
                     container('tracecompass') {
                         junit '*/*/target/surefire-reports/*.xml'
-                        archiveArtifacts artifacts: '*/*tests/screenshots/*.jpeg,*/*tests/target/work/data/.metadata/.log,rcp/org.eclipse.tracecompass.rcp.product/target/products/*.dmg,rcp/org.eclipse.tracecompass.rcp.product/target/products/*.tar.gz, rcp/org.eclipse.tracecompass.rcp.product/target/products/*.zip', excludes: '**/org.eclipse.tracecompass.common.core.log', allowEmptyArchive: true
+                        archiveArtifacts artifacts: '*/*tests/screenshots/*.jpeg,*/*tests/target/work/data/.metadata/.log', excludes: '**/org.eclipse.tracecompass.common.core.log', allowEmptyArchive: true
                     }
                 }
             }

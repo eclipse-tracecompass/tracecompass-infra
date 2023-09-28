@@ -1,3 +1,4 @@
+/* groovylint-disable GStringExpressionWithinString, LineLength, NestedBlockDepth, UnnecessaryGString */
 /*******************************************************************************
  * Copyright (c) 2019, 2023 Ericsson.
  *
@@ -35,6 +36,9 @@ pipeline {
         JAVADOC_PATH="target/site/apidocs"
         GIT_SHA_FILE="tc-git-sha"
     }
+    parameters {
+        booleanParam(name: 'NOTARIZE_MAC_RCP', defaultValue: false, description: "whether to notarize mac RCP packages")
+    }
     stages {
         stage('Checkout') {
             steps {
@@ -44,12 +48,14 @@ pipeline {
                     sh 'cp scripts/deploy-update-site.sh ${MAVEN_WORKSPACE_SCRIPTS}'
                     sh 'cp scripts/deploy-doc.sh ${MAVEN_WORKSPACE_SCRIPTS}'
                     sh 'cp scripts/deploy-javadoc.sh ${MAVEN_WORKSPACE_SCRIPTS}'
+                    sh 'cp scripts/macosx-notarize.sh ${MAVEN_WORKSPACE_SCRIPTS}'
                     checkout([$class: 'GitSCM', branches: [[name: '$GERRIT_BRANCH_NAME']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'BuildChooserSetting', buildChooser: [$class: 'GerritTriggerBuildChooser']]], submoduleCfg: [], userRemoteConfigs: [[refspec: '$GERRIT_REFSPEC', url: '$GERRIT_REPOSITORY_URL']]])
                     sh 'mkdir -p ${WORKSPACE_SCRIPTS}'
                     sh 'cp ${MAVEN_WORKSPACE_SCRIPTS}/deploy-rcp.sh ${WORKSPACE_SCRIPTS}'
                     sh 'cp ${MAVEN_WORKSPACE_SCRIPTS}/deploy-update-site.sh ${WORKSPACE_SCRIPTS}'
                     sh 'cp ${MAVEN_WORKSPACE_SCRIPTS}/deploy-doc.sh ${WORKSPACE_SCRIPTS}'
                     sh 'cp ${MAVEN_WORKSPACE_SCRIPTS}/deploy-javadoc.sh ${WORKSPACE_SCRIPTS}'
+                    sh 'cp ${MAVEN_WORKSPACE_SCRIPTS}/macosx-notarize.sh ${WORKSPACE_SCRIPTS}'
                 }
             }
         }
@@ -135,6 +141,21 @@ pipeline {
             steps {
                 sshagent (['projects-storage.eclipse.org-bot-ssh']) {
                    sh '${WORKSPACE_SCRIPTS}/deploy-javadoc.sh ${JAVADOC_PATH}'
+                }
+            }
+        }
+        stage('Notarize macos RCP packages') {
+            when {
+                expression { return params.NOTARIZE_MAC_RCP }
+            }
+            steps {
+                sshagent (['projects-storage.eclipse.org-bot-ssh']) {
+                    sh '${WORKSPACE_SCRIPTS}/macosx-notarize.sh ${RCP_DESTINATION}'
+                }
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: '*.log', allowEmptyArchive: true
                 }
             }
         }
