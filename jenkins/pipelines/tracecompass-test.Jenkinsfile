@@ -12,9 +12,8 @@
 pipeline {
     agent {
         kubernetes {
-            label 'tracecompass-test-build'
+            label 'tracecompass-build'
             yamlFile 'jenkins/pod-templates/tracecompass-test-pod.yaml'
-            defaultContainer 'tracecompass-test'
         }
     }
     options {
@@ -43,7 +42,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                container('tracecompass-test') {
+                container('tracecompass') {
                     sh 'mkdir -p ${MAVEN_WORKSPACE_SCRIPTS}'
                     sh 'cp scripts/deploy-rcp.sh ${MAVEN_WORKSPACE_SCRIPTS}'
                     sh 'cp scripts/deploy-update-site.sh ${MAVEN_WORKSPACE_SCRIPTS}'
@@ -65,14 +64,14 @@ pipeline {
                 not { expression { return params.PRODUCT_FILE == null || params.PRODUCT_FILE.isEmpty() } }
             }
             steps {
-                container('tracecompass-test') {
+                container('tracecompass') {
                     sh "cp -f ${WORKSPACE}/rcp/org.eclipse.tracecompass.rcp.product/${params.PRODUCT_FILE} ${WORKSPACE}/rcp/org.eclipse.tracecompass.rcp.product/tracing.product"
                 }
             }
         }
         stage('Build') {
             steps {
-                container('tracecompass-test') {
+                container('tracecompass') {
                     sh 'mkdir -p ${WORKSPACE}/doc/.temp'
                     sh 'mkdir -p ${WORKSPACE}/doc/.temp/org.eclipse.tracecompass.doc.dev'
                     sh 'mkdir -p ${WORKSPACE}/doc/.temp/org.eclipse.tracecompass.doc.user'
@@ -88,7 +87,7 @@ pipeline {
             }
             post {
                 always {
-                    container('tracecompass-test') {
+                    container('tracecompass') {
                         junit '*/*/target/surefire-reports/*.xml'
                         archiveArtifacts artifacts: '*/*tests/screenshots/*.jpeg,*/*tests/target/work/data/.metadata/.log,rcp/org.eclipse.tracecompass.rcp.product/target/products/*.dmg,rcp/org.eclipse.tracecompass.rcp.product/target/products/*.tar.gz, rcp/org.eclipse.tracecompass.rcp.product/target/products/*.zip', excludes: '**/org.eclipse.tracecompass.common.core.log', allowEmptyArchive: true
                     }
@@ -130,7 +129,7 @@ pipeline {
                 expression { return params.JAVADOC }
             }
             steps {
-                container('tracecompass-test') {
+                container('tracecompass') {
                     sh 'mvn clean javadoc:aggregate -Pbuild-api-docs -Dmaven.repo.local=/home/jenkins/.m2/repository --settings /home/jenkins/.m2/settings.xml ${MAVEN_ARGS}'
                 }
             }
@@ -163,7 +162,7 @@ pipeline {
     }
     post {
         failure {
-            container('tracecompass-test') {
+            container('tracecompass') {
                 emailext subject: 'Build $BUILD_STATUS: $PROJECT_NAME #$BUILD_NUMBER!',
                 body: '''$CHANGES \n
 ------------------------------------------\n
@@ -173,7 +172,7 @@ Check console output at $BUILD_URL to view the results.''',
             }
         }
         fixed {
-            container('tracecompass-test') {
+            container('tracecompass') {
                 emailext subject: 'Build is back to normal: $PROJECT_NAME #$BUILD_NUMBER!',
                 body: '''Check console output at $BUILD_URL to view the results.''',
                 recipientProviders: [culprits(), requestor()],
