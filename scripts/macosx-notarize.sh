@@ -30,7 +30,6 @@ SCP="scp"
 
 # Notatize a single "DMG" file passed as an argument. Uses current directory as a temporary directory
 function notarize_single_dmg() {
-    export PS4='+$$+ ' # add PID to output so that parallel bash process output is easier to follow
     DMG_FILE="$1"
     DMG="$(basename "${DMG_FILE}")"
     # keep a copy of the original dmg

@@ -1,4 +1,3 @@
-/* groovylint-disable GStringExpressionWithinString, LineLength, NestedBlockDepth, UnnecessaryGString */
 /*******************************************************************************
  * Copyright (c) 2019, 2023 Ericsson.
  *
