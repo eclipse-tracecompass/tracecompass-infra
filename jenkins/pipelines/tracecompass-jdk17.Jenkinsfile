@@ -35,9 +35,6 @@ pipeline {
         JAVADOC_PATH="target/site/apidocs"
         GIT_SHA_FILE="tc-git-sha"
     }
-    parameters {
-        booleanParam(name: 'NOTARIZE_MAC_RCP', defaultValue: false, description: "whether to notarize mac RCP packages")
-    }
     stages {
         stage('Checkout') {
             steps {
