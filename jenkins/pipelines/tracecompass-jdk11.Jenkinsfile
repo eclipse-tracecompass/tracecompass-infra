@@ -65,6 +65,16 @@ pipeline {
                 }
             }
         }
+        stage('RCP Feature File') {
+            when {
+                not { expression { return params.RCP_FEATURE_FILE == null || params.RCP_FEATURE_FILE.isEmpty() } }
+            }
+            steps {
+                container('tracecompass') {
+                    sh "cp -f ${WORKSPACE}/rcp/org.eclipse.tracecompass.rcp/${params.RCP_FEATURE_FILE} ${WORKSPACE}/rcp/org.eclipse.tracecompass.rcp/feature.xml"
+                }
+            }
+        }
         stage('Build') {
             steps {
                 container('tracecompass') {
