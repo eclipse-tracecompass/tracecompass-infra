@@ -22,7 +22,7 @@ pipeline {
         disableConcurrentBuilds()
     }
     tools {
-        maven 'apache-maven-3.8.6'
+        maven 'apache-maven-3.9.5'
         jdk 'openjdk-jdk17-latest'
     }
     environment {
