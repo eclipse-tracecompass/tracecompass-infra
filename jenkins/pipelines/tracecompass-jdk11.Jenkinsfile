@@ -75,6 +75,16 @@ pipeline {
                 }
             }
         }
+        stage('SLF4J Properties Manifest') {
+            when {
+                not { expression { return params.SLF4J_PROPERTIES_MANIFEST == null || params.SLF4J_PROPERTIES_MANIFEST.isEmpty() } }
+            }
+            steps {
+                container('tracecompass') {
+                    sh "cp -f ${WORKSPACE}/releng/org.eclipse.tracecompass.slf4j.binding.simple.properties/${params.SLF4J_PROPERTIES_MANIFEST} ${WORKSPACE}/releng/org.eclipse.tracecompass.slf4j.binding.simple.properties/META-INF/MANIFEST.MF"
+                }
+            }
+        }
         stage('Build') {
             steps {
                 container('tracecompass') {
