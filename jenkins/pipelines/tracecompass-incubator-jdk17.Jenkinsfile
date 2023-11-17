@@ -144,7 +144,7 @@ pipeline {
             }
             steps {
                 container('tracecompass') {
-                    sh 'mvn clean javadoc:aggregate -Pbuild-api-docs -Dmaven.repo.local=/home/jenkins/.m2/repository --settings /home/jenkins/.m2/settings.xml ${MAVEN_ARGS}'
+                    sh 'mvn compile javadoc:aggregate -Pbuild-api-docs -Dmaven.repo.local=/home/jenkins/.m2/repository --settings /home/jenkins/.m2/settings.xml ${MAVEN_ARGS}'
                 }
             }
         }
