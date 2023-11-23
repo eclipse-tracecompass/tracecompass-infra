@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019, 2023 Ericsson.
+ * Copyright (c) 2023 Ericsson.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -22,7 +22,7 @@ pipeline {
     }
     tools {
         maven 'apache-maven-3.8.6'
-        jdk 'openjdk-jdk11-latest'
+        jdk 'openjdk-jdk17-latest'
     }
     environment {
         MAVEN_OPTS="-Xms768m -Xmx4096m -XX:+UseSerialGC"
@@ -146,7 +146,7 @@ pipeline {
             }
             steps {
                 container('tracecompass') {
-                    sh 'mvn clean javadoc:aggregate -Pbuild-api-docs -Dmaven.repo.local=/home/jenkins/.m2/repository --settings /home/jenkins/.m2/settings.xml ${MAVEN_ARGS}'
+                    sh 'mvn compile javadoc:aggregate -Pbuild-api-docs -Dmaven.repo.local=/home/jenkins/.m2/repository --settings /home/jenkins/.m2/settings.xml ${MAVEN_ARGS}'
                 }
             }
         }
