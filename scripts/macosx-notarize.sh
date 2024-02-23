@@ -88,8 +88,6 @@ function notarize_single_dmg() {
 mkdir temp
 pushd temp
 for path in $(${SSH} find ${RCP_DESTINATION} -maxdepth 1 -name '*.dmg'); do
-    df -h .
-    free -h
     ${SCP} ${SSHUSER}:${path} .
 done
 popd
