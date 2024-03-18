@@ -31,4 +31,4 @@ fi
 $ECHO ${SSH} "mkdir -p ${JAVADOC_DESTINATION} && \
               rm -rf ${JAVADOC_DESTINATION}/${JAVADOC_REPO}"
 
-$ECHO $SCP -rv ${javadocPath} "${SSHUSER}:${JAVADOC_DESTINATION}"
+$ECHO $SCP -r ${javadocPath} "${SSHUSER}:${JAVADOC_DESTINATION}"
