@@ -163,7 +163,7 @@ pipeline {
                 expression { return params.NOTARIZE_MAC_RCP }
             }
             steps {
-              build job:'notarize-tracecompass-dmgs' , parameters:[string(name: 'RCP_DESTINATION',value: ${RCP_DESTINATION})]
+                build job:'notarize-tracecompass-dmgs' , parameters:[string(name: 'RCP_DESTINATION',value: params.RCP_DESTINATION)]
             }
         }
     }
