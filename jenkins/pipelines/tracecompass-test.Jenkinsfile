@@ -12,7 +12,7 @@ pipeline {
     agent {
         kubernetes {
             label 'tracecompass-build'
-            yamlFile 'jenkins/pod-templates/tracecompass-test-pod.yaml'
+            yamlFile 'jenkins/pod-templates/tracecompass-sonar-pod.yaml'
         }
     }
     options {
@@ -44,14 +44,12 @@ pipeline {
                     sh 'cp scripts/deploy-update-site.sh ${MAVEN_WORKSPACE_SCRIPTS}'
                     sh 'cp scripts/deploy-doc.sh ${MAVEN_WORKSPACE_SCRIPTS}'
                     sh 'cp scripts/deploy-javadoc.sh ${MAVEN_WORKSPACE_SCRIPTS}'
-                    sh 'cp scripts/macosx-notarize.sh ${MAVEN_WORKSPACE_SCRIPTS}'
                     checkout([$class: 'GitSCM', branches: [[name: '$GERRIT_BRANCH_NAME']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'BuildChooserSetting', buildChooser: [$class: 'GerritTriggerBuildChooser']]], submoduleCfg: [], userRemoteConfigs: [[refspec: '$GERRIT_REFSPEC', url: '$GERRIT_REPOSITORY_URL']]])
                     sh 'mkdir -p ${WORKSPACE_SCRIPTS}'
                     sh 'cp ${MAVEN_WORKSPACE_SCRIPTS}/deploy-rcp.sh ${WORKSPACE_SCRIPTS}'
                     sh 'cp ${MAVEN_WORKSPACE_SCRIPTS}/deploy-update-site.sh ${WORKSPACE_SCRIPTS}'
                     sh 'cp ${MAVEN_WORKSPACE_SCRIPTS}/deploy-doc.sh ${WORKSPACE_SCRIPTS}'
                     sh 'cp ${MAVEN_WORKSPACE_SCRIPTS}/deploy-javadoc.sh ${WORKSPACE_SCRIPTS}'
-                    sh 'cp ${MAVEN_WORKSPACE_SCRIPTS}/macosx-notarize.sh ${WORKSPACE_SCRIPTS}'
                 }
             }
         }
@@ -62,6 +60,26 @@ pipeline {
             steps {
                 container('tracecompass') {
                     sh "cp -f ${WORKSPACE}/rcp/org.eclipse.tracecompass.rcp.product/${params.PRODUCT_FILE} ${WORKSPACE}/rcp/org.eclipse.tracecompass.rcp.product/tracing.product"
+                }
+            }
+        }
+        stage('RCP Feature File') {
+            when {
+                not { expression { return params.RCP_FEATURE_FILE == null || params.RCP_FEATURE_FILE.isEmpty() } }
+            }
+            steps {
+                container('tracecompass') {
+                    sh "cp -f ${WORKSPACE}/rcp/org.eclipse.tracecompass.rcp/${params.RCP_FEATURE_FILE} ${WORKSPACE}/rcp/org.eclipse.tracecompass.rcp/feature.xml"
+                }
+            }
+        }
+        stage('SLF4J Properties Manifest') {
+            when {
+                not { expression { return params.SLF4J_PROPERTIES_MANIFEST == null || params.SLF4J_PROPERTIES_MANIFEST.isEmpty() } }
+            }
+            steps {
+                container('tracecompass') {
+                    sh "cp -f ${WORKSPACE}/releng/org.eclipse.tracecompass.slf4j.binding.simple.properties/${params.SLF4J_PROPERTIES_MANIFEST} ${WORKSPACE}/releng/org.eclipse.tracecompass.slf4j.binding.simple.properties/META-INF/MANIFEST.MF"
                 }
             }
         }
@@ -126,7 +144,7 @@ pipeline {
             }
             steps {
                 container('tracecompass') {
-                    sh 'mvn clean javadoc:aggregate -Pbuild-api-docs -Dmaven.repo.local=/home/jenkins/.m2/repository --settings /home/jenkins/.m2/settings.xml ${MAVEN_ARGS}'
+                    sh 'mvn compile javadoc:aggregate -Pbuild-api-docs -Dmaven.repo.local=/home/jenkins/.m2/repository --settings /home/jenkins/.m2/settings.xml ${MAVEN_ARGS}'
                 }
             }
         }
@@ -145,14 +163,7 @@ pipeline {
                 expression { return params.NOTARIZE_MAC_RCP }
             }
             steps {
-                sshagent (['projects-storage.eclipse.org-bot-ssh']) {
-                    sh '${WORKSPACE_SCRIPTS}/macosx-notarize.sh ${RCP_DESTINATION}'
-                }
-            }
-            post {
-                always {
-                    archiveArtifacts artifacts: '*.log', allowEmptyArchive: true
-                }
+              build job:'notarize-tracecompass-dmgs' , parameters:[string(name: 'RCP_DESTINATION',value: ${RCP_DESTINATION})]
             }
         }
     }
