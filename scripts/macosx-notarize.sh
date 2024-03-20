@@ -15,7 +15,7 @@
 #     Marc Dumais - adapted for the Trace Compass project (used https://github.com/eclipse-packaging/packages/blob/9282c079339625bac45c0eb394f72f8b8b5a8d5a/releng/org.eclipse.epp.config/tools/macosx-notarization-single.sh as source, as well as this EPP Jenkins job configuration: https://ci.eclipse.org/packaging/job/notarize-downloads/configure)
 
 set -u # run with unset flag error so that missing parameters cause build failure
-set -x # echo all commands used for debugging purposes
+set +x # disable versbose
 
 ##
 # Notatize all .dmg files found in the "RCP_DESTINATION" folder, that's assumed to
@@ -96,7 +96,7 @@ popd
 for i in $(find ./temp -name '*.dmg'); do
     LOG=$(basename ${i}).log
     echo "Starting ${i}" >>${LOG}
-    notarize_single_dmg ${i} |& tee --append ${LOG} &
+    notarize_single_dmg ${i} |& tee --append ${LOG}
     sleep 18s # start jobs at a small interval from each other
 done
 
