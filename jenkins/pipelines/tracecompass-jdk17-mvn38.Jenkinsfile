@@ -44,14 +44,12 @@ pipeline {
                     sh 'cp scripts/deploy-update-site.sh ${MAVEN_WORKSPACE_SCRIPTS}'
                     sh 'cp scripts/deploy-doc.sh ${MAVEN_WORKSPACE_SCRIPTS}'
                     sh 'cp scripts/deploy-javadoc.sh ${MAVEN_WORKSPACE_SCRIPTS}'
-                    sh 'cp scripts/macosx-notarize.sh ${MAVEN_WORKSPACE_SCRIPTS}'
                     checkout([$class: 'GitSCM', branches: [[name: '$GERRIT_BRANCH_NAME']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'BuildChooserSetting', buildChooser: [$class: 'GerritTriggerBuildChooser']]], submoduleCfg: [], userRemoteConfigs: [[refspec: '$GERRIT_REFSPEC', url: '$GERRIT_REPOSITORY_URL']]])
                     sh 'mkdir -p ${WORKSPACE_SCRIPTS}'
                     sh 'cp ${MAVEN_WORKSPACE_SCRIPTS}/deploy-rcp.sh ${WORKSPACE_SCRIPTS}'
                     sh 'cp ${MAVEN_WORKSPACE_SCRIPTS}/deploy-update-site.sh ${WORKSPACE_SCRIPTS}'
                     sh 'cp ${MAVEN_WORKSPACE_SCRIPTS}/deploy-doc.sh ${WORKSPACE_SCRIPTS}'
                     sh 'cp ${MAVEN_WORKSPACE_SCRIPTS}/deploy-javadoc.sh ${WORKSPACE_SCRIPTS}'
-                    sh 'cp ${MAVEN_WORKSPACE_SCRIPTS}/macosx-notarize.sh ${WORKSPACE_SCRIPTS}'
                 }
             }
         }
@@ -165,14 +163,7 @@ pipeline {
                 expression { return params.NOTARIZE_MAC_RCP }
             }
             steps {
-                sshagent (['projects-storage.eclipse.org-bot-ssh']) {
-                    sh '${WORKSPACE_SCRIPTS}/macosx-notarize.sh ${RCP_DESTINATION}'
-                }
-            }
-            post {
-                always {
-                    archiveArtifacts artifacts: '*.log', allowEmptyArchive: true
-                }
+                build job:'notarize-tracecompass-dmgs' , parameters:[string(name: 'RCP_DESTINATION',value: params.RCP_DESTINATION)]
             }
         }
     }
