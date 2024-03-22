@@ -59,15 +59,15 @@ Other commit information:
 
 * [How to format the message][commit-message-message]
 
-## How to build the docker image (tag 18.04)
+## How to build the docker image (tag 22.04)
 
 ```bash
-docker build --no-cache --build-arg version=18.04 --build-arg strip=true  -t eclipse/tracecompass-build-env:18.04 .
+docker build --network host --no-cache -t eclipse/tracecompass-build-env:22.04 .
 ```
 
 ## How to push the docker image to dockerHub under the eclipse organisation
 ```bash
-docker push eclipse/tracecompass-build-env:18.04
+docker push eclipse/tracecompass-build-env:22.04
 ```
 
 ## Contact
