@@ -9,7 +9,7 @@
 # SPDX-License-Identifier: EPL-2.0
 ###############################################################################
 
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 
 USER root
 
@@ -21,6 +21,7 @@ RUN chmod u+x /usr/local/bin/uid_entrypoint && \
 #ENTRYPOINT [ "uid_entrypoint" ]
 ### end
 
+ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
       build-essential \
       ca-certificates \
@@ -31,14 +32,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       pkg-config \
       wget \
       zip \
-      ##Xvnc
       libgtk-3-0 \
       libgtk2.0-0 \
       locales \
-      #libgtk-3-0=3.22.30-1ubuntu1 \
-      #tigervnc-standalone-server \
-      #tigervnc-common \
-      #metacity \
       icewm \
       x11-xserver-utils \
       libgl1-mesa-dri \
@@ -47,13 +43,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       xfonts-100dpi \
       xfonts-75dpi \
       fonts-liberation \
-      #fonts-liberation2 \
       fonts-freefont-ttf \
       fonts-dejavu \
       fonts-dejavu-core \
       fonts-dejavu-extra \
       python-all-dev python-pip python-setuptools \
       python3-all-dev python3-pip python3-setuptools \
+      tigervnc-standalone-server \
+      tigervnc-xorg-extension\
+      tigervnc-viewer \
+      tigervnc-common \
+      metacity \
     && rm -rf /var/lib/apt/lists/* \
     && locale-gen en_US.UTF-8 \
     && pip install --upgrade pip \
@@ -65,10 +65,8 @@ ENV LC_ALL en_US.UTF-8
 
 #RUN [ -f "/etc/ssl/certs/java/cacerts" ] || /var/lib/dpkg/info/ca-certificates-java.postinst configure
 
-RUN apt-get update && apt-get install -y --no-install-recommends x11-utils xauth  libtasn1-3-bin libxfont1-dev libglu1-mesa x11-xkb-utils \
-    && rm -rf /var/lib/apt/lists/* && wget https://dl.bintray.com/tigervnc/stable/ubuntu-16.04LTS/amd64/tigervncserver_1.9.0-1ubuntu1_amd64.deb -O /tmp/tigervncserver_1.9.0-1ubuntu1_amd64.deb \
-  && dpkg -i /tmp/tigervncserver_1.9.0-1ubuntu1_amd64.deb \
-  && rm /tmp/tigervncserver_1.9.0-1ubuntu1_amd64.deb
+RUN apt-get update && apt-get install -y --no-install-recommends x11-utils xauth libglu1-mesa x11-xkb-utils \
+    && rm -rf /var/lib/apt/lists/*
 
 ENV USER_NAME tracecompass
 ENV HOME /home/tracecompass
