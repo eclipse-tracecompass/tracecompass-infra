@@ -25,7 +25,7 @@ pipeline {
         jdk 'openjdk-jdk17-latest'
     }
     environment {
-        MAVEN_OPTS="-Xms768m -Xmx4096m -XX:+UseSerialGC"
+        MAVEN_OPTS="-Xms768m -Xmx5120m -XX:+UseSerialGC"
         MAVEN_WORKSPACE_SCRIPTS="../scripts"
         WORKSPACE_SCRIPTS="${WORKSPACE}/.scripts/"
         SITE_PATH="releng/org.eclipse.tracecompass.releng-site/target/repository/"
