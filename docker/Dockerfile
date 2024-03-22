@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2019 Ericsson.
+# Copyright (c) 2019, 2024 Ericsson.
 #
 # This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License 2.0
@@ -9,7 +9,7 @@
 # SPDX-License-Identifier: EPL-2.0
 ###############################################################################
 
-FROM ubuntu:18.04
+FROM ubuntu:22.04
 
 USER root
 
@@ -32,8 +32,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       pkg-config \
       wget \
       zip \
-      libgtk-3-0 \
-      libgtk2.0-0 \
       locales \
       icewm \
       x11-xserver-utils \
@@ -42,13 +40,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       xfonts-scalable \
       xfonts-100dpi \
       xfonts-75dpi \
-      fonts-liberation \
-      fonts-freefont-ttf \
       fonts-dejavu \
       fonts-dejavu-core \
       fonts-dejavu-extra \
-      python-all-dev python-pip python-setuptools \
       python3-all-dev python3-pip python3-setuptools \
+      tigervnc-tools \
       tigervnc-standalone-server \
       tigervnc-xorg-extension\
       tigervnc-viewer \
@@ -56,14 +52,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       metacity \
     && rm -rf /var/lib/apt/lists/* \
     && locale-gen en_US.UTF-8 \
-    && pip install --upgrade pip \
     && pip3 install --upgrade pip
 # Need locale to be UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
-
-#RUN [ -f "/etc/ssl/certs/java/cacerts" ] || /var/lib/dpkg/info/ca-certificates-java.postinst configure
 
 RUN apt-get update && apt-get install -y --no-install-recommends x11-utils xauth libglu1-mesa x11-xkb-utils \
     && rm -rf /var/lib/apt/lists/*
@@ -78,7 +71,6 @@ RUN mkdir -p ${HOME}/.vnc && chmod -R 775 ${HOME} \
   && chmod 600 ${HOME}/.vnc/passwd
 # Create a custom vnc xstartup file
 COPY scripts/xstartup_icewm.sh ${HOME}/.vnc/xstartup.sh
-#COPY scripts/xstartup_metacity.sh ${HOME}/.vnc/xstartup.sh
 RUN chmod 755 ${HOME}/.vnc/xstartup.sh
 ENTRYPOINT [ "uid_entrypoint" ]
 CMD ["/home/tracecompass/.vnc/xstartup.sh"]
