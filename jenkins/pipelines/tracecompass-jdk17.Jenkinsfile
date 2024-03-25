@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019, 2023 Ericsson.
+ * Copyright (c) 2019, 2024 Ericsson.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -12,7 +12,7 @@ pipeline {
     agent {
         kubernetes {
             label 'tracecompass-build'
-            yamlFile 'jenkins/pod-templates/tracecompass-sonar-pod.yaml'
+            yamlFile 'jenkins/pod-templates/tracecompass-pod.yaml'
         }
     }
     options {
