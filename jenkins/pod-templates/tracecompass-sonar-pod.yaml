@@ -3,7 +3,7 @@ kind: Pod
 spec:
   containers:
   - name: tracecompass
-    image: eclipse/tracecompass-build-env:18.04
+    image: eclipse/tracecompass-build-env:22.04
     imagePullPolicy: Always
     tty: true
     command: [ "/bin/sh" ]
@@ -26,6 +26,13 @@ spec:
       mountPath: /opt/tools
   - name: jnlp
     image: 'eclipsecbi/jenkins-jnlp-agent'
+    resources:
+      requests:
+        memory: "1024Mi"
+        cpu: "500m"
+      limits:
+        memory: "1024Mi"
+        cpu: "500m"
     volumeMounts:
     - mountPath: /home/jenkins/.ssh
       name: volume-known-hosts
