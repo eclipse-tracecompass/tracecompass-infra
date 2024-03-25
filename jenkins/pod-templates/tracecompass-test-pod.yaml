@@ -13,7 +13,7 @@ spec:
         memory: "6Gi"
         cpu: "2000m"
       limits:
-        memory: "5Gi"
+        memory: "6Gi"
         cpu: "2000m"
     volumeMounts:
     - name: settings-xml
