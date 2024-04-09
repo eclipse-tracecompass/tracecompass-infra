@@ -12,7 +12,7 @@ pipeline {
     agent {
         kubernetes {
             label 'tracecompass-build'
-            yamlFile 'jenkins/pod-templates/tracecompass-jdk17-pod.yaml'
+            yamlFile 'jenkins/pod-templates/tracecompass-pod.yaml'
         }
     }
     options {
