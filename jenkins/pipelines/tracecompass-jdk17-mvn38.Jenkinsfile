@@ -19,6 +19,7 @@ pipeline {
         timestamps()
         timeout(time: 4, unit: 'HOURS')
         disableConcurrentBuilds()
+        durabilityHint('MAX_SURVIVABILITY')
     }
     tools {
         maven 'apache-maven-3.8.6'
