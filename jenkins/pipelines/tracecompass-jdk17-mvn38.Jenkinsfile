@@ -20,6 +20,7 @@ pipeline {
         timeout(time: 4, unit: 'HOURS')
         disableConcurrentBuilds()
         durabilityHint('MAX_SURVIVABILITY')
+        buildDiscarder(logRotator(numToKeepStr: '20', artifactNumToKeepStr: '2'))
     }
     tools {
         maven 'apache-maven-3.8.6'
