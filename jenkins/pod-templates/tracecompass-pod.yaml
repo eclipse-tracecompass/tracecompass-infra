@@ -25,7 +25,6 @@ spec:
     - name: tools
       mountPath: /opt/tools
   - name: jnlp
-    image: 'eclipsecbi/jenkins-jnlp-agent'
     resources:
       requests:
         memory: "1024Mi"
