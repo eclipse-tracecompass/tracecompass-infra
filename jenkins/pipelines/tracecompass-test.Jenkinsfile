@@ -12,7 +12,7 @@ pipeline {
     agent {
         kubernetes {
             label 'tracecompass-build'
-            yamlFile 'jenkins/pod-templates/tracecompass-sonar-pod.yaml'
+            yamlFile 'jenkins/pod-templates/tracecompass-pod.yaml'
         }
     }
     options {
@@ -36,6 +36,8 @@ pipeline {
         RCP_PATTERN="trace-compass-*"
         JAVADOC_PATH="target/site/apidocs"
         GIT_SHA_FILE="tc-git-sha"
+        // For testing purposes - should be defined as a Jenkins job parameter
+        RCP_TITLE="Test Download Page Title"
     }
     stages {
         stage('Checkout') {
@@ -43,12 +45,14 @@ pipeline {
                 container('tracecompass') {
                     sh 'mkdir -p ${MAVEN_WORKSPACE_SCRIPTS}'
                     sh 'cp scripts/deploy-rcp.sh ${MAVEN_WORKSPACE_SCRIPTS}'
+                    sh 'cp scripts/generate_download_page.sh ${MAVEN_WORKSPACE_SCRIPTS}'
                     sh 'cp scripts/deploy-update-site.sh ${MAVEN_WORKSPACE_SCRIPTS}'
                     sh 'cp scripts/deploy-doc.sh ${MAVEN_WORKSPACE_SCRIPTS}'
                     sh 'cp scripts/deploy-javadoc.sh ${MAVEN_WORKSPACE_SCRIPTS}'
                     checkout([$class: 'GitSCM', branches: [[name: '$GERRIT_BRANCH_NAME']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'BuildChooserSetting', buildChooser: [$class: 'GerritTriggerBuildChooser']]], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'github-bot', refspec: '$GERRIT_REFSPEC', url: '$GERRIT_REPOSITORY_URL']]])
                     sh 'mkdir -p ${WORKSPACE_SCRIPTS}'
                     sh 'cp ${MAVEN_WORKSPACE_SCRIPTS}/deploy-rcp.sh ${WORKSPACE_SCRIPTS}'
+                    sh 'cp ${MAVEN_WORKSPACE_SCRIPTS}/generate_download_page.sh ${WORKSPACE_SCRIPTS}'
                     sh 'cp ${MAVEN_WORKSPACE_SCRIPTS}/deploy-update-site.sh ${WORKSPACE_SCRIPTS}'
                     sh 'cp ${MAVEN_WORKSPACE_SCRIPTS}/deploy-doc.sh ${WORKSPACE_SCRIPTS}'
                     sh 'cp ${MAVEN_WORKSPACE_SCRIPTS}/deploy-javadoc.sh ${WORKSPACE_SCRIPTS}'
@@ -166,6 +170,17 @@ pipeline {
             }
             steps {
                 build job:'notarize-tracecompass-dmgs' , parameters:[string(name: 'RCP_DESTINATION',value: params.RCP_DESTINATION)]
+            }
+        }
+        // needs to be done after all packages are done
+        stage('Generate Download Page') {
+            when {
+                expression { return params.DEPLOY_RCP }
+            }
+            steps {
+                sshagent (['projects-storage.eclipse.org-bot-ssh']) {
+                    sh '${WORKSPACE_SCRIPTS}/generate_download_page.sh ${RCP_DESTINATION} "bogus/deploy/path" ${RCP_TITLE} > ${RCP_DESTINATION}/index.html'
+                }
             }
         }
     }
