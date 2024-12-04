@@ -179,7 +179,7 @@ pipeline {
             }
             steps {
                 sshagent (['projects-storage.eclipse.org-bot-ssh']) {
-                    sh '${WORKSPACE_SCRIPTS}/generate_download_page.sh ${RCP_DESTINATION} "bogus/deploy/path" ${RCP_TITLE} > ${RCP_DESTINATION}/index.html'
+                    sh "${WORKSPACE_SCRIPTS}/generate_download_page.sh ${RCP_DESTINATION} 'bogus/deploy/path' \"${RCP_TITLE}\" > ${RCP_DESTINATION}/index.html"
                 }
             }
         }
