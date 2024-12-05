@@ -181,13 +181,19 @@ pipeline {
             steps {
                 sshagent (['projects-storage.eclipse.org-bot-ssh']) { 
                     sh """
-                       ls -al ${RCP_DESTINATION}
-                       touch ${RCP_DESTINATION}test.txt
-                       ls -al ${RCP_DESTINATION}
-                       rm ${RCP_DESTINATION}test.txt
+                        SSHUSER="genie.tracecompass@projects-storage.eclipse.org"
+                        SSH="ssh ${SSHUSER}"
+                        SCP="scp"
+
+                        ${ssh} ls -al ${RCP_DESTINATION}
+                        ${ssh} touch ${RCP_DESTINATION}test.txt
+                        ${ssh} ls -al ${RCP_DESTINATION}
+                        ${ssh} rm ${RCP_DESTINATION}test.txt
+                        ${WORKSPACE_SCRIPTS}generate_download_page.sh ${RCP_DESTINATION} \"bogus/deploy/path\" \"${RCP_TITLE}\" > index.html
+                        ${SCP} index.html "${SSHUSER}:${RCP_DESTINATION}"
                     """
                     // sh "${WORKSPACE_SCRIPTS}generate_download_page.sh ${RCP_DESTINATION} \"bogus/deploy/path\" \"${RCP_TITLE}\" > ${RCP_DESTINATION}index.html"
-                    sh "${WORKSPACE_SCRIPTS}generate_download_page.sh ${RCP_DESTINATION} \"bogus/deploy/path\" \"${RCP_TITLE}\" | tee ${RCP_DESTINATION}index.html"
+                    // sh "${WORKSPACE_SCRIPTS}generate_download_page.sh ${RCP_DESTINATION} \"bogus/deploy/path\" \"${RCP_TITLE}\" | tee ${RCP_DESTINATION}index.html"
                 }
             }
         }
