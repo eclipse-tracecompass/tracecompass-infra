@@ -56,6 +56,9 @@ base_deploy_path="/home/data/httpd/download.eclipse.org"
 www_deploy_path="${deploy_path#"$base_deploy_path"}"
 bg_img=https://github.com/eclipse-tracecompass/org.eclipse.tracecompass/blob/master/rcp/org.eclipse.tracecompass.rcp.branding/icons/png/tc_icon_256x256.png?raw=true
 
+SSHUSER="genie.tracecompass@projects-storage.eclipse.org"
+SSH="ssh ${SSHUSER}"
+
 # echo "Base: $base_deploy_path"
 # echo "Relative: $www_deploy_path"
 
@@ -110,7 +113,7 @@ cat <<EOF
 EOF
 
 # Find release files
-files=($(find $src_dir -maxdepth 1 \( -type f \) -not -name "config.php" -not -name "index.*" | sort))
+files= ${SSH} ($(find $src_dir -maxdepth 1 \( -type f \) -not -name "config.php" -not -name "index.*" | sort))
 
 # Loop through files, generate a table entry for each one
 for file in "${files[@]}"; do
