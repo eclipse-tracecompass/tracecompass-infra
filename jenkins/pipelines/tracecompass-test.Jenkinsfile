@@ -98,11 +98,11 @@ pipeline {
                     sh 'mkdir -p ${WORKSPACE}/doc/.temp/org.eclipse.tracecompass.gdbtrace.doc.user'
                     sh 'mkdir -p ${WORKSPACE}/doc/.temp/org.eclipse.tracecompass.rcp.doc.user'
                     sh 'mkdir -p ${WORKSPACE}/doc/.temp/org.eclipse.tracecompass.tmf.pcap.doc.user'
-                    sh 'mvn clean install -B -Dskip-jacoco=true -Pdeploy-doc -DdocDestination=${WORKSPACE}/doc/.temp -Pctf-grammar -Pbuild-rcp -Dmaven.repo.local=/home/jenkins/.m2/repository --settings /home/jenkins/.m2/settings.xml ${MAVEN_ARGS}'
-                    sh 'mkdir -p ${SITE_PATH}'
-                    sh 'git rev-parse --short HEAD > ${SITE_PATH}/${GIT_SHA_FILE}'
-                    sh 'mkdir -p ${RCP_SITE_PATH}'
-                    sh 'cp ${SITE_PATH}/${GIT_SHA_FILE} ${RCP_SITE_PATH}/${GIT_SHA_FILE}'
+                    // sh 'mvn clean install -B -Dskip-jacoco=true -Pdeploy-doc -DdocDestination=${WORKSPACE}/doc/.temp -Pctf-grammar -Pbuild-rcp -Dmaven.repo.local=/home/jenkins/.m2/repository --settings /home/jenkins/.m2/settings.xml ${MAVEN_ARGS}'
+                    // sh 'mkdir -p ${SITE_PATH}'
+                    // sh 'git rev-parse --short HEAD > ${SITE_PATH}/${GIT_SHA_FILE}'
+                    // sh 'mkdir -p ${RCP_SITE_PATH}'
+                    // sh 'cp ${SITE_PATH}/${GIT_SHA_FILE} ${RCP_SITE_PATH}/${GIT_SHA_FILE}'
                 }
             }
             post {
@@ -178,8 +178,15 @@ pipeline {
                 expression { return params.DEPLOY_RCP }
             }
             steps {
-                sshagent (['projects-storage.eclipse.org-bot-ssh']) {
-                    sh "${WORKSPACE_SCRIPTS}/generate_download_page.sh ${RCP_DESTINATION} 'bogus/deploy/path' \"${RCP_TITLE}\" > ${RCP_DESTINATION}/index.html"
+                sshagent (['projects-storage.eclipse.org-bot-ssh']) { 
+                    sh """
+                       ls -al ${RCP_DESTINATION}
+                       touch ${RCP_DESTINATION}test.txt
+                       ls -al ${RCP_DESTINATION}
+                       rm ${RCP_DESTINATION}test.txt
+                    """
+                    // sh "${WORKSPACE_SCRIPTS}generate_download_page.sh ${RCP_DESTINATION} \"bogus/deploy/path\" \"${RCP_TITLE}\" > ${RCP_DESTINATION}index.html"
+                    sh "${WORKSPACE_SCRIPTS}generate_download_page.sh ${RCP_DESTINATION} \"bogus/deploy/path\" \"${RCP_TITLE}\" | tee ${RCP_DESTINATION}index.html"
                 }
             }
         }
