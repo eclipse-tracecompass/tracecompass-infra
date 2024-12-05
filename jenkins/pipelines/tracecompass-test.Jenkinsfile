@@ -105,14 +105,14 @@ pipeline {
                     // sh 'cp ${SITE_PATH}/${GIT_SHA_FILE} ${RCP_SITE_PATH}/${GIT_SHA_FILE}'
                 }
             }
-            post {
-                always {
-                    container('tracecompass') {
-                        junit '*/*/target/surefire-reports/*.xml'
-                        archiveArtifacts artifacts: '*/*tests/screenshots/*.jpeg,*/*tests/target/work/data/.metadata/.log', excludes: '**/org.eclipse.tracecompass.common.core.log', allowEmptyArchive: true
-                    }
-                }
-            }
+            // post {
+            //     always {
+            //         container('tracecompass') {
+            //             junit '*/*/target/surefire-reports/*.xml'
+            //             archiveArtifacts artifacts: '*/*tests/screenshots/*.jpeg,*/*tests/target/work/data/.metadata/.log', excludes: '**/org.eclipse.tracecompass.common.core.log', allowEmptyArchive: true
+            //         }
+            //     }
+            // }
         }
         stage('Deploy Site') {
             when {
@@ -130,7 +130,8 @@ pipeline {
             }
             steps {
                 sshagent (['projects-storage.eclipse.org-bot-ssh']) {
-                    sh '${WORKSPACE_SCRIPTS}/deploy-rcp.sh ${RCP_PATH} ${RCP_DESTINATION} ${RCP_SITE_PATH} ${RCP_SITE_DESTINATION} ${RCP_PATTERN} false'
+                    // sh '${WORKSPACE_SCRIPTS}/deploy-rcp.sh ${RCP_PATH} ${RCP_DESTINATION} ${RCP_SITE_PATH} ${RCP_SITE_DESTINATION} ${RCP_PATTERN} false'
+                    echo "Deploy RCP..."
                 }
             }
         }
