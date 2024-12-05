@@ -115,7 +115,8 @@ files=($(${SSH} "find ${src_dir} -maxdepth 1 -type f -not -name 'config.php' -no
 # Loop through files, generate a table entry for each one
 for file in "${files[@]}"; do
     filename=$(basename $file)
-    size=$(du -h "$file" | awk '{print $1}')
+    size=($(${SSH} "du -h '${src_dir}/$file' | awk '{print $1}'"))
+
     # Something to try... It might work to rely on the browser's context, 
     # and omit the server and path completely - after all the browser will 
     # already need to know these things to load the generated page. It this 
