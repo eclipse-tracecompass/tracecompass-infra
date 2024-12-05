@@ -59,9 +59,6 @@ bg_img=https://github.com/eclipse-tracecompass/org.eclipse.tracecompass/blob/mas
 SSHUSER="genie.tracecompass@projects-storage.eclipse.org"
 SSH="ssh ${SSHUSER}"
 
-# echo "Base: $base_deploy_path"
-# echo "Relative: $www_deploy_path"
-
 # HTML header
 cat <<EOF
 <!doctype html>
@@ -113,7 +110,7 @@ cat <<EOF
 EOF
 
 # Find release files
-files= ${SSH} ($(find $src_dir -maxdepth 1 \( -type f \) -not -name "config.php" -not -name "index.*" | sort))
+files=($(${SSH} "find ${src_dir} -maxdepth 1 -type f -not -name 'config.php' -not -name 'index.*' | sort"))
 
 # Loop through files, generate a table entry for each one
 for file in "${files[@]}"; do
