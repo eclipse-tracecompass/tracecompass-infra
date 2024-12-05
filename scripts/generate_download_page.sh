@@ -43,6 +43,9 @@
 # Linux path: 
 # /home/data/httpd/download.eclipse.org/tracecompass/stable/rcp/trace-compass-10.1.0-20240918-1731-linux.gtk.x86_64.tar.gz
 
+set -u # run with unset flag error so that missing parameters cause build failure
+set -e # error out on any failed commands
+set -x # echo all commands used for debugging purposes
 
 src_dir=$1
 deploy_path=$2
@@ -53,8 +56,8 @@ base_deploy_path="/home/data/httpd/download.eclipse.org"
 www_deploy_path="${deploy_path#"$base_deploy_path"}"
 bg_img=https://github.com/eclipse-tracecompass/org.eclipse.tracecompass/blob/master/rcp/org.eclipse.tracecompass.rcp.branding/icons/png/tc_icon_256x256.png?raw=true
 
-echo "Base: $base_deploy_path"
-echo "Relative: $www_deploy_path"
+# echo "Base: $base_deploy_path"
+# echo "Relative: $www_deploy_path"
 
 # HTML header
 cat <<EOF
