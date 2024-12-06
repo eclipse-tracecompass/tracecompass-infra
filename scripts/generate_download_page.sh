@@ -47,16 +47,23 @@ cat <<EOF
     body {
         font-family: Arial, sans-serif;
         background: url('$bg_img') no-repeat center center fixed;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
         background-size: contain;
-        /* background-size: cover; */
     }
     h1 {
         text-align: center;
         color: #333;
     }
+    .content {
+        display: flex;
+        flex: 1;
+        justify-content: center;
+        align-items: center;
+    }
     table {
         width: 80%;
-        margin: auto;
         background-color: rgba(255, 255, 255, 0.7);
         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
@@ -66,18 +73,20 @@ cat <<EOF
         border-bottom: 1px solid #ddd;
     }
     tr:nth-child(even) {
-        background-color: rgba(255, 255, 255, 0.7);
+        background-color: rgba(245, 245, 245, 0.5);
+    }
+    tr:nth-child(1) {
+        background-color: rgba(220, 220, 220, 0.5);
     }
     tr:hover {
-        background-color: rgba(230,230,230,0.7);
+        background-color: rgba(220,220,220,0.5);
     }
     a {
         color: #0073e6;
         text-decoration: none;
     }
     footer {
-        background-color: rgba(255, 255, 255, 0.7);
-        text-align: center; 
+        text-align: left; 
         margin: 40px; 
         font-size: 0.7em; 
     }
@@ -87,6 +96,7 @@ cat <<EOF
 <!-- Main page -->
 <body>
 <h1>$title</h1>
+<div class="content">
 <table>
 <tr><th>Downloads:</th></tr>
 EOF
@@ -103,6 +113,7 @@ done
 
 cat <<EOF
 </table>
+</div>
 <footer>Page generated on: $current_date</footer>
 </body>
 </html>
