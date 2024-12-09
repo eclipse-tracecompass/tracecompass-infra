@@ -36,8 +36,7 @@ pipeline {
         RCP_PATTERN="trace-compass-*"
         JAVADOC_PATH="target/site/apidocs"
         GIT_SHA_FILE="tc-git-sha"
-        // For testing purposes - should be defined as a Jenkins job parameter
-        RCP_TITLE="Test Download Page Title"
+        DEFAULT_RCP_TITLE="Download Page"
     }
     stages {
         stage('Checkout') {
@@ -179,8 +178,12 @@ pipeline {
                 expression { return params.DEPLOY_RCP }
             }
             steps {
-                sshagent (['projects-storage.eclipse.org-bot-ssh']) { 
-                    generate_download_page("\${RCP_DESTINATION}", "\${RCP_TITLE}")
+                sshagent (['projects-storage.eclipse.org-bot-ssh']) {
+                    def title = ${RCP_TITLE}
+                    if (!title) {
+                        title = ${DEFAULT_RCP_TITLE}
+                    }
+                    generate_download_page(${RCP_DESTINATION}, title)
                 }
             }
         }
