@@ -98,21 +98,21 @@ pipeline {
                     sh 'mkdir -p ${WORKSPACE}/doc/.temp/org.eclipse.tracecompass.gdbtrace.doc.user'
                     sh 'mkdir -p ${WORKSPACE}/doc/.temp/org.eclipse.tracecompass.rcp.doc.user'
                     sh 'mkdir -p ${WORKSPACE}/doc/.temp/org.eclipse.tracecompass.tmf.pcap.doc.user'
-                    // sh 'mvn clean install -B -Dskip-jacoco=true -Pdeploy-doc -DdocDestination=${WORKSPACE}/doc/.temp -Pctf-grammar -Pbuild-rcp -Dmaven.repo.local=/home/jenkins/.m2/repository --settings /home/jenkins/.m2/settings.xml ${MAVEN_ARGS}'
-                    // sh 'mkdir -p ${SITE_PATH}'
-                    // sh 'git rev-parse --short HEAD > ${SITE_PATH}/${GIT_SHA_FILE}'
-                    // sh 'mkdir -p ${RCP_SITE_PATH}'
-                    // sh 'cp ${SITE_PATH}/${GIT_SHA_FILE} ${RCP_SITE_PATH}/${GIT_SHA_FILE}'
+                    sh 'mvn clean install -B -Dskip-jacoco=true -Pdeploy-doc -DdocDestination=${WORKSPACE}/doc/.temp -Pctf-grammar -Pbuild-rcp -Dmaven.repo.local=/home/jenkins/.m2/repository --settings /home/jenkins/.m2/settings.xml ${MAVEN_ARGS}'
+                    sh 'mkdir -p ${SITE_PATH}'
+                    sh 'git rev-parse --short HEAD > ${SITE_PATH}/${GIT_SHA_FILE}'
+                    sh 'mkdir -p ${RCP_SITE_PATH}'
+                    sh 'cp ${SITE_PATH}/${GIT_SHA_FILE} ${RCP_SITE_PATH}/${GIT_SHA_FILE}'
                 }
             }
-            // post {
-            //     always {
-            //         container('tracecompass') {
-            //             junit '*/*/target/surefire-reports/*.xml'
-            //             archiveArtifacts artifacts: '*/*tests/screenshots/*.jpeg,*/*tests/target/work/data/.metadata/.log', excludes: '**/org.eclipse.tracecompass.common.core.log', allowEmptyArchive: true
-            //         }
-            //     }
-            // }
+            post {
+                always {
+                    container('tracecompass') {
+                        junit '*/*/target/surefire-reports/*.xml'
+                        archiveArtifacts artifacts: '*/*tests/screenshots/*.jpeg,*/*tests/target/work/data/.metadata/.log', excludes: '**/org.eclipse.tracecompass.common.core.log', allowEmptyArchive: true
+                    }
+                }
+            }
         }
         stage('Deploy Site') {
             when {
