@@ -49,15 +49,13 @@ pipeline {
                     sh 'cp scripts/deploy-update-site.sh ${MAVEN_WORKSPACE_SCRIPTS}'
                     sh 'cp scripts/deploy-doc.sh ${MAVEN_WORKSPACE_SCRIPTS}'
                     sh 'cp scripts/deploy-javadoc.sh ${MAVEN_WORKSPACE_SCRIPTS}'
-                    sh 'echo "gerrit branch: ${GERRIT_BRANCH_NAME}, gerrit refspec: ${GERRIT_REFSPEC}"'
-                    sh 'echo "gerrit branch: param.GERRIT_BRANCH_NAME, gerrit refspec: param.GERRIT_REFSPEC"'
                     checkout([
                         $class: 'GitSCM', 
                         branches: [[name: '$GERRIT_BRANCH_NAME']],
                         doGenerateSubmoduleConfigurations: false,
                         extensions: [],
                         submoduleCfg: [],
-                        userRemoteConfigs: [[credentialsId: 'github-bot', refspec: '$GERRIT_REFSPEC', url: '$GERRIT_REPOSITORY_URL']]
+                        userRemoteConfigs: [[credentialsId: 'github-bot', url: '$GERRIT_REPOSITORY_URL']]
                     ])
                     sh 'mkdir -p ${WORKSPACE_SCRIPTS}'
                     sh 'cp ${MAVEN_WORKSPACE_SCRIPTS}/deploy-rcp.sh ${WORKSPACE_SCRIPTS}'
