@@ -33,7 +33,14 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                checkout([$class: 'GitSCM', branches: [[name: '$GERRIT_BRANCH_NAME']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'CleanCheckout']], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'github-bot', refspec: '$GERRIT_REFSPEC', url: '$GERRIT_REPOSITORY_URL']]])
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: '$GERRIT_BRANCH_NAME']],
+                    doGenerateSubmoduleConfigurations: false,
+                    extensions: [[$class: 'CleanCheckout']],
+                    submoduleCfg: [],
+                    userRemoteConfigs: [[credentialsId: 'github-bot', refspec: '$GERRIT_REFSPEC', url: '$GERRIT_REPOSITORY_URL']]
+                ])
             }
         }
         stage('Build') {
