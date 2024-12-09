@@ -212,7 +212,7 @@ def generate_download_page(String destFolder, String title) {
     sh """
         SSHUSER="genie.tracecompass@projects-storage.eclipse.org"
         SCP="scp"
-        \${WORKSPACE_SCRIPTS}generate_download_page.sh \${destFolder} \"\${title}\" > index.html
+        \${WORKSPACE_SCRIPTS}generate_download_page.sh '${destFolder}' '${title}' > index.html
         \${SCP} index.html "\${SSHUSER}:\${destFolder}"
         rm index.html
     """
