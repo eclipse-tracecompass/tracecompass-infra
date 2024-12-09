@@ -180,7 +180,7 @@ pipeline {
             }
             steps {
                 sshagent (['projects-storage.eclipse.org-bot-ssh']) { 
-                    generate_download_page("${RCP_DESTINATION}", "${RCP_TITLE}")
+                    generate_download_page("\${RCP_DESTINATION}", "\${RCP_TITLE}")
                 }
             }
         }
