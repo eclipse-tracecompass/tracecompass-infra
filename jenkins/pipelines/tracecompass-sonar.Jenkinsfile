@@ -35,11 +35,11 @@ pipeline {
             steps {
                 checkout([
                     $class: 'GitSCM',
-                    branches: [[name: '$GERRIT_BRANCH_NAME']],
+                    branches: [[name: '*/$GERRIT_BRANCH_NAME']],
                     doGenerateSubmoduleConfigurations: false,
-                    extensions: [[$class: 'CleanCheckout']],
+                    extensions: [],
                     submoduleCfg: [],
-                    userRemoteConfigs: [[credentialsId: 'github-bot', url: '$GERRIT_REPOSITORY_URL']]
+                    userRemoteConfigs: [[credentialsId: 'github-bot', refspec: '+refs/heads/$GERRIT_BRANCH_NAME:refs/remotes/origin/$GERRIT_BRANCH_NAME', url: '$GERRIT_REPOSITORY_URL']]
                 ])
             }
         }

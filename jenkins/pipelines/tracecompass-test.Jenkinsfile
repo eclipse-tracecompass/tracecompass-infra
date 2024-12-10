@@ -51,11 +51,11 @@ pipeline {
                     sh 'cp scripts/deploy-javadoc.sh ${MAVEN_WORKSPACE_SCRIPTS}'
                     checkout([
                         $class: 'GitSCM',
-                        branches: [[name: '$GERRIT_BRANCH_NAME']],
+                        branches: [[name: '*/$GERRIT_BRANCH_NAME']],
                         doGenerateSubmoduleConfigurations: false,
-                        extensions: [[$class: 'CleanCheckout']],
+                        extensions: [],
                         submoduleCfg: [],
-                        userRemoteConfigs: [[credentialsId: 'github-bot', url: '$GERRIT_REPOSITORY_URL']]
+                        userRemoteConfigs: [[credentialsId: 'github-bot', refspec: '+refs/heads/$GERRIT_BRANCH_NAME:refs/remotes/origin/$GERRIT_BRANCH_NAME', url: '$GERRIT_REPOSITORY_URL']]
                     ])
                     sh 'mkdir -p ${WORKSPACE_SCRIPTS}'
                     sh 'cp ${MAVEN_WORKSPACE_SCRIPTS}/deploy-rcp.sh ${WORKSPACE_SCRIPTS}'
