@@ -36,7 +36,7 @@ pipeline {
         RCP_PATTERN="trace-compass-*"
         JAVADOC_PATH="target/site/apidocs"
         GIT_SHA_FILE="tc-git-sha"
-        DEFAULT_RCP_TITLE="Download Page"
+        WEBPAGE_TITLE="Download Page"
     }
     stages {
         stage('Checkout') {
@@ -180,12 +180,12 @@ pipeline {
             steps {
                 sshagent (['projects-storage.eclipse.org-bot-ssh']) {
                     script {
-                        def title = ${RCP_TITLE}
-                        if (!title) {
-                            title = ${DEFAULT_RCP_TITLE}
+                        if (env.RCP_TITLE) {
+                            env.WEBPAGE_TITLE = env.RCP_TITLE
                         }
-                        generate_download_page(${RCP_DESTINATION}, title)
                     }
+                    println "${WEBPAGE_TITLE}"
+                    generate_download_page("\${RCP_DESTINATION}", "\${WEBPAGE_TITLE}")
                 }
             }
         }
