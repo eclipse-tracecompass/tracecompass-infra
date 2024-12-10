@@ -36,7 +36,7 @@ pipeline {
         RCP_PATTERN="trace-compass-*"
         JAVADOC_PATH="target/site/apidocs"
         GIT_SHA_FILE="tc-git-sha"
-        WEBPAGE_TITLE="Download Page"
+        WEBPAGE_TITLE = "${params.RCP_TITLE == null || params.RCP_TITLE.isEmpty() ? "Download Page" : params.RCP_TITLE}"
     }
     stages {
         stage('Checkout') {
@@ -179,13 +179,8 @@ pipeline {
             }
             steps {
                 sshagent (['projects-storage.eclipse.org-bot-ssh']) {
-                    script {
-                        if (env.RCP_TITLE) {
-                            env.WEBPAGE_TITLE = env.RCP_TITLE
-                        }
-                    }
                     println "${WEBPAGE_TITLE}"
-                    generate_download_page("\${RCP_DESTINATION}", "\${WEBPAGE_TITLE}")
+                    generate_download_page("${RCP_DESTINATION}", "${WEBPAGE_TITLE}")
                 }
             }
         }
@@ -215,10 +210,8 @@ Check console output at $BUILD_URL to view the results.''',
 
 def generate_download_page(String destFolder, String title) {
     sh """
-        SSHUSER="genie.tracecompass@projects-storage.eclipse.org"
-        SCP="scp"
         \${WORKSPACE_SCRIPTS}generate_download_page.sh '${destFolder}' '${title}' > index.html
-        \${SCP} index.html "\${SSHUSER}:\${destFolder}"
+        scp index.html 'genie.tracecompass@projects-storage.eclipse.org:${destFolder}'
         rm index.html
     """
 }
