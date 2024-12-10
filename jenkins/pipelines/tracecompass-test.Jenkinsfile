@@ -46,7 +46,7 @@ pipeline {
                     sh 'cp scripts/deploy-update-site.sh ${MAVEN_WORKSPACE_SCRIPTS}'
                     sh 'cp scripts/deploy-doc.sh ${MAVEN_WORKSPACE_SCRIPTS}'
                     sh 'cp scripts/deploy-javadoc.sh ${MAVEN_WORKSPACE_SCRIPTS}'
-                    println 'gerrit branch name: GERRIT_BRANCH_NAME, params.GERRIT_BRANCH_NAME'
+                    println "gerrit branch name: $GERRIT_BRANCH_NAME, ${params.GERRIT_BRANCH_NAME}, ${GERRIT_BRANCH_NAME}"
                     checkout([
                         $class: 'GitSCM',
                         branches: [[name: '*/master']],
