@@ -49,7 +49,7 @@ pipeline {
                     println "gerrit branch name: $GERRIT_BRANCH_NAME, ${params.GERRIT_BRANCH_NAME}, ${GERRIT_BRANCH_NAME}"
                     checkout([
                         $class: 'GitSCM',
-                        branches: [[name: '*/master']],
+                        branches: [[name: '$GERRIT_BRANCH_NAME']],
                         doGenerateSubmoduleConfigurations: false,
                         extensions: [[$class: 'CleanCheckout']],
                         submoduleCfg: [],
