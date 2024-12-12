@@ -36,8 +36,7 @@ pipeline {
         RCP_PATTERN="trace-compass-*"
         JAVADOC_PATH="target/site/apidocs"
         GIT_SHA_FILE="tc-git-sha"
-        // For testing purposes - should be defined as a Jenkins job parameter
-        RCP_TITLE="Test Download Page Title"
+        WEBPAGE_TITLE = "${params.RCP_TITLE == null || params.RCP_TITLE.isEmpty() ? "Download Page" : params.RCP_TITLE}"
     }
     stages {
         stage('Checkout') {
@@ -105,21 +104,21 @@ pipeline {
                     sh 'mkdir -p ${WORKSPACE}/doc/.temp/org.eclipse.tracecompass.gdbtrace.doc.user'
                     sh 'mkdir -p ${WORKSPACE}/doc/.temp/org.eclipse.tracecompass.rcp.doc.user'
                     sh 'mkdir -p ${WORKSPACE}/doc/.temp/org.eclipse.tracecompass.tmf.pcap.doc.user'
-                    // sh 'mvn clean install -B -Dskip-jacoco=true -Pdeploy-doc -DdocDestination=${WORKSPACE}/doc/.temp -Pctf-grammar -Pbuild-rcp -Dmaven.repo.local=/home/jenkins/.m2/repository --settings /home/jenkins/.m2/settings.xml ${MAVEN_ARGS}'
-                    // sh 'mkdir -p ${SITE_PATH}'
-                    // sh 'git rev-parse --short HEAD > ${SITE_PATH}/${GIT_SHA_FILE}'
-                    // sh 'mkdir -p ${RCP_SITE_PATH}'
-                    // sh 'cp ${SITE_PATH}/${GIT_SHA_FILE} ${RCP_SITE_PATH}/${GIT_SHA_FILE}'
+                    sh 'mvn clean install -B -Dskip-jacoco=true -Pdeploy-doc -DdocDestination=${WORKSPACE}/doc/.temp -Pctf-grammar -Pbuild-rcp -Dmaven.repo.local=/home/jenkins/.m2/repository --settings /home/jenkins/.m2/settings.xml ${MAVEN_ARGS}'
+                    sh 'mkdir -p ${SITE_PATH}'
+                    sh 'git rev-parse --short HEAD > ${SITE_PATH}/${GIT_SHA_FILE}'
+                    sh 'mkdir -p ${RCP_SITE_PATH}'
+                    sh 'cp ${SITE_PATH}/${GIT_SHA_FILE} ${RCP_SITE_PATH}/${GIT_SHA_FILE}'
                 }
             }
-            // post {
-            //     always {
-            //         container('tracecompass') {
-            //             junit '*/*/target/surefire-reports/*.xml'
-            //             archiveArtifacts artifacts: '*/*tests/screenshots/*.jpeg,*/*tests/target/work/data/.metadata/.log', excludes: '**/org.eclipse.tracecompass.common.core.log', allowEmptyArchive: true
-            //         }
-            //     }
-            // }
+            post {
+                always {
+                    container('tracecompass') {
+                        junit '*/*/target/surefire-reports/*.xml'
+                        archiveArtifacts artifacts: '*/*tests/screenshots/*.jpeg,*/*tests/target/work/data/.metadata/.log', excludes: '**/org.eclipse.tracecompass.common.core.log', allowEmptyArchive: true
+                    }
+                }
+            }
         }
         stage('Deploy Site') {
             when {
@@ -137,8 +136,7 @@ pipeline {
             }
             steps {
                 sshagent (['projects-storage.eclipse.org-bot-ssh']) {
-                    // sh '${WORKSPACE_SCRIPTS}/deploy-rcp.sh ${RCP_PATH} ${RCP_DESTINATION} ${RCP_SITE_PATH} ${RCP_SITE_DESTINATION} ${RCP_PATTERN} false'
-                    echo "Deploy RCP..."
+                    sh '${WORKSPACE_SCRIPTS}/deploy-rcp.sh ${RCP_PATH} ${RCP_DESTINATION} ${RCP_SITE_PATH} ${RCP_SITE_DESTINATION} ${RCP_PATTERN} false'
                 }
             }
         }
@@ -186,21 +184,8 @@ pipeline {
                 expression { return params.DEPLOY_RCP }
             }
             steps {
-                sshagent (['projects-storage.eclipse.org-bot-ssh']) { 
-                    sh """
-                        SSHUSER="genie.tracecompass@projects-storage.eclipse.org"
-                        SSH="ssh ${SSHUSER}"
-                        SCP="scp"
-
-                        ${ssh} ls -al ${RCP_DESTINATION}
-                        ${ssh} touch ${RCP_DESTINATION}test.txt
-                        ${ssh} ls -al ${RCP_DESTINATION}
-                        ${ssh} rm ${RCP_DESTINATION}test.txt
-                        ${WORKSPACE_SCRIPTS}generate_download_page.sh ${RCP_DESTINATION} \"bogus/deploy/path\" \"${RCP_TITLE}\" > index.html
-                        ${SCP} index.html "${SSHUSER}:${RCP_DESTINATION}"
-                    """
-                    // sh "${WORKSPACE_SCRIPTS}generate_download_page.sh ${RCP_DESTINATION} \"bogus/deploy/path\" \"${RCP_TITLE}\" > ${RCP_DESTINATION}index.html"
-                    // sh "${WORKSPACE_SCRIPTS}generate_download_page.sh ${RCP_DESTINATION} \"bogus/deploy/path\" \"${RCP_TITLE}\" | tee ${RCP_DESTINATION}index.html"
+                sshagent (['projects-storage.eclipse.org-bot-ssh']) {
+                    generate_download_page("${RCP_DESTINATION}", "${WEBPAGE_TITLE}")
                 }
             }
         }
@@ -225,4 +210,13 @@ Check console output at $BUILD_URL to view the results.''',
             }
         }
     }
+}
+
+
+def generate_download_page(String destFolder, String title) {
+    sh """
+        \${WORKSPACE_SCRIPTS}generate_download_page.sh '${destFolder}' '${title}' > index.html
+        scp index.html 'genie.tracecompass@projects-storage.eclipse.org:${destFolder}'
+        rm index.html
+    """
 }
