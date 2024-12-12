@@ -119,14 +119,6 @@ pipeline {
                     }
                 }
             }
-            // post {
-            //     always {
-            //         container('tracecompass') {
-            //             junit '*/*/target/surefire-reports/*.xml'
-            //             archiveArtifacts artifacts: '*/*tests/screenshots/*.jpeg,*/*tests/target/work/data/.metadata/.log', excludes: '**/org.eclipse.tracecompass.common.core.log', allowEmptyArchive: true
-            //         }
-            //     }
-            // }
         }
         stage('Deploy Site') {
             when {
