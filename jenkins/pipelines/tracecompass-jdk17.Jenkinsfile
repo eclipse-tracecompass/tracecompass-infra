@@ -36,6 +36,7 @@ pipeline {
         RCP_PATTERN="trace-compass-*"
         JAVADOC_PATH="target/site/apidocs"
         GIT_SHA_FILE="tc-git-sha"
+        WEBPAGE_TITLE = "${params.RCP_TITLE == null || params.RCP_TITLE.isEmpty() ? "Download Page" : params.RCP_TITLE}"
     }
     stages {
         stage('Checkout') {
@@ -43,6 +44,7 @@ pipeline {
                 container('tracecompass') {
                     sh 'mkdir -p ${MAVEN_WORKSPACE_SCRIPTS}'
                     sh 'cp scripts/deploy-rcp.sh ${MAVEN_WORKSPACE_SCRIPTS}'
+                    sh 'cp scripts/generate_download_page.sh ${MAVEN_WORKSPACE_SCRIPTS}'
                     sh 'cp scripts/deploy-update-site.sh ${MAVEN_WORKSPACE_SCRIPTS}'
                     sh 'cp scripts/deploy-doc.sh ${MAVEN_WORKSPACE_SCRIPTS}'
                     sh 'cp scripts/deploy-javadoc.sh ${MAVEN_WORKSPACE_SCRIPTS}'
@@ -56,6 +58,7 @@ pipeline {
                     ])
                     sh 'mkdir -p ${WORKSPACE_SCRIPTS}'
                     sh 'cp ${MAVEN_WORKSPACE_SCRIPTS}/deploy-rcp.sh ${WORKSPACE_SCRIPTS}'
+                    sh 'cp ${MAVEN_WORKSPACE_SCRIPTS}/generate_download_page.sh ${WORKSPACE_SCRIPTS}'
                     sh 'cp ${MAVEN_WORKSPACE_SCRIPTS}/deploy-update-site.sh ${WORKSPACE_SCRIPTS}'
                     sh 'cp ${MAVEN_WORKSPACE_SCRIPTS}/deploy-doc.sh ${WORKSPACE_SCRIPTS}'
                     sh 'cp ${MAVEN_WORKSPACE_SCRIPTS}/deploy-javadoc.sh ${WORKSPACE_SCRIPTS}'
@@ -175,6 +178,17 @@ pipeline {
                 build job:'notarize-tracecompass-dmgs' , parameters:[string(name: 'RCP_DESTINATION',value: params.RCP_DESTINATION)]
             }
         }
+        // needs to be done after all packages are done
+        stage('Generate Download Page') {
+            when {
+                expression { return params.DEPLOY_RCP }
+            }
+            steps {
+                sshagent (['projects-storage.eclipse.org-bot-ssh']) {
+                    generate_download_page("${RCP_DESTINATION}", "${WEBPAGE_TITLE}")
+                }
+            }
+        }
     }
     post {
         failure {
@@ -196,4 +210,12 @@ Check console output at $BUILD_URL to view the results.''',
             }
         }
     }
+}
+
+def generate_download_page(String destFolder, String title) {
+    sh """
+        \${WORKSPACE_SCRIPTS}generate_download_page.sh '${destFolder}' '${title}' > index.html
+        scp index.html 'genie.tracecompass@projects-storage.eclipse.org:${destFolder}'
+        rm index.html
+    """
 }
