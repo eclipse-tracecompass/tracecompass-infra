@@ -85,6 +85,16 @@ pipeline {
                 }
             }
         }
+        stage('Update Site File') {
+            when {
+                not { expression { return params.UPDATE_SITE_FILE == null || params.UPDATE_SITE_FILE.isEmpty() } }
+            }
+            steps {
+                container('tracecompass') {
+                    sh "cp -f ${WORKSPACE}/releng/org.eclipse.tracecompass.releng-site/${params.UPDATE_SITE_FILE} ${WORKSPACE}/releng/org.eclipse.tracecompass.releng-site/category.xml"
+                }
+            }
+        }
         stage('SLF4J Properties Manifest') {
             when {
                 not { expression { return params.SLF4J_PROPERTIES_MANIFEST == null || params.SLF4J_PROPERTIES_MANIFEST.isEmpty() } }

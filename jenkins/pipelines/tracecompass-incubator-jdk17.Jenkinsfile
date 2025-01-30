@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020, 2023 Ericsson.
+ * Copyright (c) 2020, 2025 Ericsson.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -72,6 +72,16 @@ pipeline {
             steps {
                 container('tracecompass') {
                     sh "cp -f ${WORKSPACE}/rcp/org.eclipse.tracecompass.incubator.rcp.product/${params.PRODUCT_FILE} ${WORKSPACE}/rcp/org.eclipse.tracecompass.incubator.rcp.product/tracing.incubator.product"
+                }
+            }
+        }
+        stage('Update Site File') {
+            when {
+                not { expression { return params.UPDATE_SITE_FILE == null || params.UPDATE_SITE_FILE.isEmpty() } }
+            }
+            steps {
+                container('tracecompass') {
+                    sh "cp -f ${WORKSPACE}/common/org.eclipse.tracecompass.incubator.releng-site/${params.UPDATE_SITE_FILE} ${WORKSPACE}/common/org.eclipse.tracecompass.incubator.releng-site//category.xml"
                 }
             }
         }
