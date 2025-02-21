@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019, 2024 Ericsson.
+ * Copyright (c) 2019, 2025 Ericsson.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -24,7 +24,7 @@ pipeline {
     }
     tools {
         maven 'apache-maven-3.9.5'
-        jdk 'openjdk-jdk17-latest'
+        jdk 'openjdk-jdk21-latest'
     }
     environment {
         MAVEN_OPTS="-Xms768m -Xmx4096m -XX:+UseSerialGC"
@@ -39,6 +39,16 @@ pipeline {
         WEBPAGE_TITLE = "${params.RCP_TITLE == null || params.RCP_TITLE.isEmpty() ? "Download Page" : params.RCP_TITLE}"
     }
     stages {
+        stage('initialize PGP') {
+            steps {
+                container('tracecompass') {
+                    withCredentials([file(credentialsId: 'secret-subkeys.asc', variable: 'KEYRING')]) {
+                        sh 'gpg --batch --import "${KEYRING}"'
+                        sh 'for fpr in $(gpg --list-keys --with-colons  | awk -F: \'/fpr:/ {print $10}\' | sort -u); do echo -e "5\ny\n" |  gpg --batch --command-fd 0 --expert --edit-key ${fpr} trust; done'
+                    }
+                }
+            }
+        }
         stage('Checkout') {
             steps {
                 container('tracecompass') {
@@ -85,6 +95,16 @@ pipeline {
                 }
             }
         }
+        stage('Update Site File') {
+            when {
+                not { expression { return params.UPDATE_SITE_FILE == null || params.UPDATE_SITE_FILE.isEmpty() } }
+            }
+            steps {
+                container('tracecompass') {
+                    sh "cp -f ${WORKSPACE}/releng/org.eclipse.tracecompass.releng-site/${params.UPDATE_SITE_FILE} ${WORKSPACE}/releng/org.eclipse.tracecompass.releng-site/category.xml"
+                }
+            }
+        }
         stage('SLF4J Properties Manifest') {
             when {
                 not { expression { return params.SLF4J_PROPERTIES_MANIFEST == null || params.SLF4J_PROPERTIES_MANIFEST.isEmpty() } }
@@ -98,24 +118,18 @@ pipeline {
         stage('Build') {
             steps {
                 container('tracecompass') {
-                    sh 'mkdir -p ${WORKSPACE}/doc/.temp'
-                    sh 'mkdir -p ${WORKSPACE}/doc/.temp/org.eclipse.tracecompass.doc.dev'
-                    sh 'mkdir -p ${WORKSPACE}/doc/.temp/org.eclipse.tracecompass.doc.user'
-                    sh 'mkdir -p ${WORKSPACE}/doc/.temp/org.eclipse.tracecompass.gdbtrace.doc.user'
-                    sh 'mkdir -p ${WORKSPACE}/doc/.temp/org.eclipse.tracecompass.rcp.doc.user'
-                    sh 'mkdir -p ${WORKSPACE}/doc/.temp/org.eclipse.tracecompass.tmf.pcap.doc.user'
-                    sh 'mvn clean install -B -Dskip-jacoco=true -Pdeploy-doc -DdocDestination=${WORKSPACE}/doc/.temp -Pctf-grammar -Pbuild-rcp -Dmaven.repo.local=/home/jenkins/.m2/repository --settings /home/jenkins/.m2/settings.xml ${MAVEN_ARGS}'
-                    sh 'mkdir -p ${SITE_PATH}'
-                    sh 'git rev-parse --short HEAD > ${SITE_PATH}/${GIT_SHA_FILE}'
-                    sh 'mkdir -p ${RCP_SITE_PATH}'
-                    sh 'cp ${SITE_PATH}/${GIT_SHA_FILE} ${RCP_SITE_PATH}/${GIT_SHA_FILE}'
-                }
-            }
-            post {
-                always {
-                    container('tracecompass') {
-                        junit '*/*/target/surefire-reports/*.xml'
-                        archiveArtifacts artifacts: '*/*tests/screenshots/*.jpeg,*/*tests/target/work/data/.metadata/.log', excludes: '**/org.eclipse.tracecompass.common.core.log', allowEmptyArchive: true
+                    withCredentials([string(credentialsId: 'gpg-passphrase', variable: 'KEYRING_PASSPHRASE')]) {
+                        sh 'mkdir -p ${WORKSPACE}/doc/.temp'
+                        sh 'mkdir -p ${WORKSPACE}/doc/.temp/org.eclipse.tracecompass.doc.dev'
+                        sh 'mkdir -p ${WORKSPACE}/doc/.temp/org.eclipse.tracecompass.doc.user'
+                        sh 'mkdir -p ${WORKSPACE}/doc/.temp/org.eclipse.tracecompass.gdbtrace.doc.user'
+                        sh 'mkdir -p ${WORKSPACE}/doc/.temp/org.eclipse.tracecompass.rcp.doc.user'
+                        sh 'mkdir -p ${WORKSPACE}/doc/.temp/org.eclipse.tracecompass.tmf.pcap.doc.user'
+                        sh 'mvn clean install -B -Dgpg.passphrase="${KEYRING_PASSPHRASE}" -DskipTests=true -Dskip-jacoco=true -Pdeploy-doc -DdocDestination=${WORKSPACE}/doc/.temp -Pctf-grammar -Pbuild-rcp -Dmaven.repo.local=/home/jenkins/.m2/repository --settings /home/jenkins/.m2/settings.xml ${MAVEN_ARGS}'
+                        sh 'mkdir -p ${SITE_PATH}'
+                        sh 'git rev-parse --short HEAD > ${SITE_PATH}/${GIT_SHA_FILE}'
+                        sh 'mkdir -p ${RCP_SITE_PATH}'
+                        sh 'cp ${SITE_PATH}/${GIT_SHA_FILE} ${RCP_SITE_PATH}/${GIT_SHA_FILE}'
                     }
                 }
             }

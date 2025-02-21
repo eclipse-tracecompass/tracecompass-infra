@@ -41,6 +41,16 @@ pipeline {
         GIT_SHA_FILE="tc-git-sha"
     }
     stages {
+        stage('initialize PGP') {
+            steps {
+                container('tracecompass') {
+                    withCredentials([file(credentialsId: 'secret-subkeys.asc', variable: 'KEYRING')]) {
+                        sh 'gpg --batch --import "${KEYRING}"'
+                        sh 'for fpr in $(gpg --list-keys --with-colons  | awk -F: \'/fpr:/ {print $10}\' | sort -u); do echo -e "5\ny\n" |  gpg --batch --command-fd 0 --expert --edit-key ${fpr} trust; done'
+                    }
+                }
+            }
+        }
         stage('Checkout') {
             steps {
                 container('tracecompass') {
@@ -50,7 +60,7 @@ pipeline {
                     sh 'cp scripts/deploy-doc.sh ${MAVEN_WORKSPACE_SCRIPTS}'
                     sh 'cp scripts/deploy-javadoc.sh ${MAVEN_WORKSPACE_SCRIPTS}'
                     checkout([
-                        $class: 'GitSCM', 
+                        $class: 'GitSCM',
                         branches: [[name: '*/$GERRIT_BRANCH_NAME']],
                         doGenerateSubmoduleConfigurations: false,
                         extensions: [],
@@ -98,14 +108,16 @@ pipeline {
         stage('Build') {
             steps {
                 container('tracecompass') {
-                    sh 'curl https://ci.eclipse.org/ease/job/ease.build.nightly/lastSuccessfulBuild/artifact/ease.module.doclet.jar --output ease.module.doclet.jar'
-                    sh 'mvn clean install -B -Pdeploy-doc -Pmodule-docs -DdocDestination=${WORKSPACE}/doc/.temp -Pbuild-rcp -Dmaven.repo.local=/home/jenkins/.m2/repository --settings /home/jenkins/.m2/settings.xml ${MAVEN_ARGS}'
-                    sh 'mkdir -p ${SITE_PATH}'
-                    sh 'git rev-parse --short HEAD > ${SITE_PATH}/${GIT_SHA_FILE}'
-                    sh 'mkdir -p ${RCP_SITE_PATH}'
-                    sh 'cp ${SITE_PATH}/${GIT_SHA_FILE} ${RCP_SITE_PATH}/${GIT_SHA_FILE}'
-                    sh 'mkdir -p ${SERVER_RCP_SITE_PATH}'
-                    sh 'cp ${SITE_PATH}/${GIT_SHA_FILE} ${SERVER_RCP_SITE_PATH}/${GIT_SHA_FILE}'
+                    withCredentials([string(credentialsId: 'gpg-passphrase', variable: 'KEYRING_PASSPHRASE')]) {
+                        sh 'curl https://ci.eclipse.org/ease/job/ease.build.nightly/lastSuccessfulBuild/artifact/ease.module.doclet.jar --output ease.module.doclet.jar'
+                        sh 'mvn clean install -B -Dgpg.passphrase="${KEYRING_PASSPHRASE}" -Pdeploy-doc -Pmodule-docs -DdocDestination=${WORKSPACE}/doc/.temp -Pbuild-rcp -Dmaven.repo.local=/home/jenkins/.m2/repository --settings /home/jenkins/.m2/settings.xml ${MAVEN_ARGS}'
+                        sh 'mkdir -p ${SITE_PATH}'
+                        sh 'git rev-parse --short HEAD > ${SITE_PATH}/${GIT_SHA_FILE}'
+                        sh 'mkdir -p ${RCP_SITE_PATH}'
+                        sh 'cp ${SITE_PATH}/${GIT_SHA_FILE} ${RCP_SITE_PATH}/${GIT_SHA_FILE}'
+                        sh 'mkdir -p ${SERVER_RCP_SITE_PATH}'
+                        sh 'cp ${SITE_PATH}/${GIT_SHA_FILE} ${SERVER_RCP_SITE_PATH}/${GIT_SHA_FILE}'
+                    }
                 }
             }
             post {
