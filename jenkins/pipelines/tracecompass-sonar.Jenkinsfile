@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019, 2024 Ericsson.
+ * Copyright (c) 2019, 2025 Ericsson.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -25,7 +25,7 @@ pipeline {
     }
     tools {
         maven 'apache-maven-3.9.5'
-        jdk 'openjdk-jdk17-latest'
+        jdk 'openjdk-jdk21-latest'
     }
     environment {
         MAVEN_OPTS="-Xms768m -Xmx4096m -XX:+UseSerialGC"
