@@ -109,7 +109,7 @@ pipeline {
             steps {
                 container('tracecompass') {
                     withCredentials([string(credentialsId: 'gpg-passphrase', variable: 'KEYRING_PASSPHRASE')]) {
-                        sh 'curl https://ci.eclipse.org/ease/job/ease.build.nightly/lastSuccessfulBuild/artifact/ease.module.doclet.jar --output ease.module.doclet.jar'
+                        sh 'curl https://ci.eclipse.org/tracecompass/job/org.eclipse.ease.helpgenerator/lastSuccessfulBuild/artifact/ease.module.doclet.jar --output ease.module.doclet.jar'
                         sh 'mvn clean install -B -Dgpg.passphrase="${KEYRING_PASSPHRASE}" -Pdeploy-doc -Pmodule-docs -DdocDestination=${WORKSPACE}/doc/.temp -Pbuild-rcp -Dmaven.repo.local=/home/jenkins/.m2/repository --settings /home/jenkins/.m2/settings.xml ${MAVEN_ARGS}'
                         sh 'mkdir -p ${SITE_PATH}'
                         sh 'git rev-parse --short HEAD > ${SITE_PATH}/${GIT_SHA_FILE}'
