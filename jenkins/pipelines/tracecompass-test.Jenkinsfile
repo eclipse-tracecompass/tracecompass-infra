@@ -34,7 +34,7 @@ pipeline {
         RCP_PATH="rcp/org.eclipse.tracecompass.rcp.product/target/products/"
         RCP_SITE_PATH="rcp/org.eclipse.tracecompass.rcp.product/target/repository/"
         RCP_PATTERN="trace-compass-*"
-        JAVADOC_PATH="target/site/apidocs"
+        JAVADOC_PATH="target/reports/apidocs"
         GIT_SHA_FILE="tc-git-sha"
         WEBPAGE_TITLE = "${params.RCP_TITLE == null || params.RCP_TITLE.isEmpty() ? "Download Page" : params.RCP_TITLE}"
     }
