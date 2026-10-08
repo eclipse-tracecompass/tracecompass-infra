@@ -25,7 +25,7 @@ pipeline {
     }
     tools {
         maven 'apache-maven-3.9.12'
-        jdk 'openjdk-jdk21-latest'
+        jdk 'openjdk-jdk25-latest'
     }
     environment {
         MAVEN_OPTS="-Xms768m -Xmx4096m -XX:+UseSerialGC"
